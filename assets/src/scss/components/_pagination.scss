@@ -21,7 +21,7 @@
     border: 1px solid #e5e7eb;
     background: #ffffff;
     color: #374151;
-    border-radius: 8px;
+    border-radius: 50%;
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
@@ -132,7 +132,7 @@
       height: 36px;
       padding: 4px 8px;
       font-size: 12px;
-      border-radius: 6px;
+      border-radius: 50%;
       
       &--first,
       &--last {

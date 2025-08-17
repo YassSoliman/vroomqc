@@ -116,16 +116,21 @@ export class InventoryFilters {
         
         console.log('💰 Price range:', { min: minValue, max: maxValue });
         
-        // Initialize with current values if available, otherwise use min/max
+        // Initialize with current values from URL parameters, input values, or defaults
         let startMin = minValue;
         let startMax = maxValue;
         
-        if (minInput && minInput.value) {
+        // Check URL parameters first
+        if (this.currentFilters.price_min !== undefined) {
+            startMin = this.currentFilters.price_min;
+        } else if (minInput && minInput.value) {
             const currentMin = parseInt(minInput.value.replace(/[^0-9]/g, ''));
             if (!isNaN(currentMin)) startMin = currentMin;
         }
         
-        if (maxInput && maxInput.value) {
+        if (this.currentFilters.price_max !== undefined) {
+            startMax = this.currentFilters.price_max;
+        } else if (maxInput && maxInput.value) {
             const currentMax = parseInt(maxInput.value.replace(/[^0-9]/g, ''));
             if (!isNaN(currentMax)) startMax = currentMax;
         }
@@ -247,6 +252,21 @@ export class InventoryFilters {
         
         console.log('📏 Mileage range:', { min: minValue, max: maxValue });
 
+        // Initialize with current values from URL parameters or defaults
+        let startMin = minValue;
+        let startMax = maxValue;
+        
+        // Check URL parameters first
+        if (this.currentFilters.mileage_min !== undefined) {
+            startMin = this.currentFilters.mileage_min;
+        }
+        
+        if (this.currentFilters.mileage_max !== undefined) {
+            startMax = this.currentFilters.mileage_max;
+        }
+
+        console.log('🎯 Mileage slider start values:', { startMin, startMax });
+
         // Destroy existing slider if it exists
         if (mileageSlider.noUiSlider) {
             console.log('🔄 Destroying existing mileage slider');
@@ -255,7 +275,7 @@ export class InventoryFilters {
 
         try {
             noUiSlider.create(mileageSlider, {
-                start: [minValue, maxValue],
+                start: [startMin, startMax],
                 connect: true,
                 range: {
                     min: minValue,
@@ -362,6 +382,21 @@ export class InventoryFilters {
         
         console.log('📅 Year range:', { min: minValue, max: maxValue });
 
+        // Initialize with current values from URL parameters or defaults
+        let startMin = minValue;
+        let startMax = maxValue;
+        
+        // Check URL parameters first
+        if (this.currentFilters.year_min !== undefined) {
+            startMin = this.currentFilters.year_min;
+        }
+        
+        if (this.currentFilters.year_max !== undefined) {
+            startMax = this.currentFilters.year_max;
+        }
+
+        console.log('🎯 Year slider start values:', { startMin, startMax });
+
         // Destroy existing slider if it exists
         if (yearSlider.noUiSlider) {
             console.log('🔄 Destroying existing year slider');
@@ -370,7 +405,7 @@ export class InventoryFilters {
 
         try {
             noUiSlider.create(yearSlider, {
-                start: [minValue, maxValue],
+                start: [startMin, startMax],
                 connect: true,
                 step: 1,
                 range: {
@@ -505,9 +540,10 @@ export class InventoryFilters {
 
     setupPagination() {
         document.addEventListener('click', (e) => {
-            if (e.target.matches('.pagination__button[data-page]')) {
+            const paginationButton = e.target.closest('.pagination__button[data-page]');
+            if (paginationButton) {
                 e.preventDefault();
-                const page = parseInt(e.target.dataset.page);
+                const page = parseInt(paginationButton.dataset.page);
                 if (page && page !== this.currentPage) {
                     this.currentPage = page;
                     this.applyFilters();
@@ -857,7 +893,19 @@ export class InventoryFilters {
         
         makeGroups.forEach(group => {
             const makeSlug = group.dataset.makeGroup;
-            const shouldShow = this.shouldShowMakeGroup(makeSlug);
+            let shouldShow = this.shouldShowMakeGroup(makeSlug);
+            
+            // Also check if any models in this group are visible (for search functionality)
+            if (shouldShow) {
+                const modelsInGroup = group.querySelectorAll('.body-products-aside__row--model');
+                const visibleModels = Array.from(modelsInGroup).filter(model => {
+                    return model.style.display !== 'none';
+                });
+                
+                // Hide group if no models are visible
+                shouldShow = visibleModels.length > 0;
+            }
+            
             group.style.display = shouldShow ? '' : 'none';
         });
     }
@@ -1129,7 +1177,7 @@ export class InventoryFilters {
         const url = new URL(window.location);
         
         // Clear existing filter params
-        const filterParams = ['search', 'sort', 'page', 'make', 'model', 'body-style', 'transmission', 'drivetrain', 'fuel-type', 'trim', 'cylinder', 'exterior-color', 'interior-color', 'price_min', 'price_max', 'mileage_min', 'mileage_max'];
+        const filterParams = ['search', 'sort', 'page', 'make', 'model', 'body-style', 'transmission', 'drivetrain', 'fuel-type', 'trim', 'cylinder', 'exterior-color', 'interior-color', 'price_min', 'price_max', 'mileage_min', 'mileage_max', 'year_min', 'year_max'];
         filterParams.forEach(param => url.searchParams.delete(param));
 
         // Add current filters
@@ -1147,11 +1195,53 @@ export class InventoryFilters {
 
         Object.entries(this.currentFilters).forEach(([key, values]) => {
             if (Array.isArray(values) && values.length > 0) {
+                // Taxonomy filters
                 url.searchParams.set(key, values.join(','));
+            } else if (!Array.isArray(values) && values !== undefined && values !== null) {
+                // Range filters (price_min, price_max, etc.)
+                const rangeFilters = ['price_min', 'price_max', 'mileage_min', 'mileage_max', 'year_min', 'year_max'];
+                if (rangeFilters.includes(key)) {
+                    // Only add range filters if they differ from defaults
+                    const shouldAddToURL = this.shouldAddRangeFilterToURL(key, values);
+                    if (shouldAddToURL) {
+                        url.searchParams.set(key, values);
+                    }
+                }
             }
         });
 
+        console.log('🔗 Updated URL:', url.toString());
         window.history.replaceState({}, '', url);
+    }
+
+    shouldAddRangeFilterToURL(key, value) {
+        // Get default values for range filters
+        const priceSlider = document.getElementById('products-range-slider');
+        const mileageSlider = document.getElementById('mileage-range-slider');
+        const yearSlider = document.getElementById('year-range-slider');
+        
+        switch (key) {
+            case 'price_min':
+                const priceMin = priceSlider ? parseInt(priceSlider.dataset.minValue) || 0 : 0;
+                return value !== priceMin;
+            case 'price_max':
+                const priceMax = priceSlider ? parseInt(priceSlider.dataset.maxValue) || 100000 : 100000;
+                return value !== priceMax;
+            case 'mileage_min':
+                const mileageMin = mileageSlider ? parseInt(mileageSlider.dataset.minValue) || 0 : 0;
+                return value !== mileageMin;
+            case 'mileage_max':
+                const mileageMax = mileageSlider ? parseInt(mileageSlider.dataset.maxValue) || 300000 : 300000;
+                return value !== mileageMax;
+            case 'year_min':
+                const yearMin = yearSlider ? parseInt(yearSlider.dataset.minValue) || (new Date().getFullYear() - 20) : (new Date().getFullYear() - 20);
+                return value !== yearMin;
+            case 'year_max':
+                const yearMax = yearSlider ? parseInt(yearSlider.dataset.maxValue) || new Date().getFullYear() : new Date().getFullYear();
+                return value !== yearMax;
+            default:
+                return false;
+        }
     }
 
     restoreStateFromURL() {
@@ -1185,6 +1275,17 @@ export class InventoryFilters {
                 this.currentFilters[taxonomy] = values.split(',');
             }
         });
+
+        // Restore range filters
+        const rangeFilters = ['price_min', 'price_max', 'mileage_min', 'mileage_max', 'year_min', 'year_max'];
+        rangeFilters.forEach(filter => {
+            const value = url.searchParams.get(filter);
+            if (value) {
+                this.currentFilters[filter] = parseInt(value);
+            }
+        });
+
+        console.log('🔄 Restored filters from URL:', this.currentFilters);
 
         // If we have any filters from URL, apply them
         if (this.currentSearch || Object.keys(this.currentFilters).length > 0 || this.currentSort !== 'newest' || this.currentPage > 1) {

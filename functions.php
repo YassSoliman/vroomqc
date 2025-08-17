@@ -217,8 +217,8 @@ function vroomqc_scripts() {
 	wp_enqueue_style( 'lightgallery', get_template_directory_uri() . '/assets/lib/lightgallery.min.css', array(), $version );
 	wp_enqueue_script( 'lightgallery', get_template_directory_uri() . '/assets/lib/lightgallery.min.js', array(), $version, true );
 
-	// Localize script for AJAX on inventory page
-	if ( is_page_template( 'page-inventory.php' ) || is_page( 'inventory' ) ) {
+	// Localize script for AJAX on inventory page and homepage
+	if ( is_page_template( 'page-inventory.php' ) || is_page( 'inventory' ) || is_front_page() ) {
 		wp_localize_script( 'vroomqc-main', 'vroomqc_ajax', array(
 			'ajax_url' => admin_url( 'admin-ajax.php' ),
 			'nonce' => wp_create_nonce( 'vroomqc_filter_nonce' ),
@@ -414,6 +414,7 @@ require_once get_template_directory() . '/inc/vehicle/bulk-export.php';
  * Include AJAX handlers
  */
 require_once get_template_directory() . '/inc/ajax/vehicle-filter-ajax.php';
+require_once get_template_directory() . '/inc/ajax/homepage-filter-ajax.php';
 
 /**
  * Helper function to render dynamic taxonomy filters

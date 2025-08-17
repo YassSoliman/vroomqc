@@ -102,7 +102,7 @@ get_header();
 								<?php esc_html_e( 'Trusted local support', 'vroomqc' ); ?>
 							</li>
 						</ul>
-						<a href="#" class="offer__button button">
+						<a href="<?php echo esc_url( get_permalink( 582 ) ); ?>" class="offer__button button">
 							<?php esc_html_e( 'Browse cars', 'vroomqc' ); ?>
 						</a>
 					</div>
@@ -124,7 +124,7 @@ get_header();
 								<?php esc_html_e( 'Drop-off or pickup', 'vroomqc' ); ?>
 							</li>
 						</ul>
-						<a href="#" class="offer__button button button-transparent">
+						<a href="<?php echo esc_url( get_permalink( 370 ) ); ?>" class="offer__button button button-transparent">
 							<?php esc_html_e( 'Get an offer', 'vroomqc' ); ?>
 						</a>
 					</div>
@@ -171,9 +171,9 @@ get_header();
 					</div>
 				</div>
 				<div class="content-top-picks">
-					<div class="products">
+					<div class="products" id="homepage-vehicles-grid">
 						<?php
-						// Query for featured vehicles (not sold)
+						// Query for featured vehicles (not sold) - show all by default
 						$featured_vehicles = new WP_Query( array(
 							'post_type' => 'vehicle',
 							'posts_per_page' => 6,
@@ -189,17 +189,10 @@ get_header();
 						) );
 
 						if ( $featured_vehicles->have_posts() ) :
-							$filter_options = array( 'suv', 'hybrid,up-to-15k', 'awd,new', 'fuel-efficient,more', 'suv,sedan', 'awd,new' );
-							$index = 0;
-							
 							while ( $featured_vehicles->have_posts() ) : $featured_vehicles->the_post();
-								$filter_content = isset( $filter_options[ $index ] ) ? $filter_options[ $index ] : '';
-								
 								set_query_var( 'vehicle_id', get_the_ID() );
-								set_query_var( 'filter_content', $filter_content );
-								get_template_part( 'template-parts/vehicle/card-small' );
-								
-								$index++;
+								set_query_var( 'card_class', '_show' );
+								get_template_part( 'template-parts/vehicle/card' );
 							endwhile;
 							wp_reset_postdata();
 						else :
@@ -213,12 +206,12 @@ get_header();
 			<div class="top-picks__footer">
 				<ul class="top-picks__list">
 					<li class="top-picks__item">
-						<a href="#" class="top-picks__link">
-							<?php esc_html_e( 'Explore more SUVs', 'vroomqc' ); ?>
+						<a href="<?php echo esc_url( get_permalink( 582 ) ); ?>?body-style=suv" class="top-picks__link" id="explore-more-link">
+							<?php esc_html_e( 'Explore more SUV', 'vroomqc' ); ?>
 						</a>
 					</li>
 					<li class="top-picks__item">
-						<a href="#" class="top-picks__link">
+						<a href="<?php echo esc_url( get_permalink( 582 ) ); ?>" class="top-picks__link">
 							<?php esc_html_e( 'See full inventory', 'vroomqc' ); ?>
 						</a>
 					</li>
@@ -531,15 +524,7 @@ get_header();
 						<p>
 							<?php esc_html_e( 'Our customers love how quickly they get pre-approved and receive their vehicles. Most deliveries happen within 24-48 hours!', 'vroomqc' ); ?>
 						</p>
-					</div>
-					<div class="reviews__nav">
-						<button type="button" class="reviews__arrow reviews__arrow-prev">
-							<?php echo vroomqc_get_svg( 'icons/icons-sprite.svg#arrow-icon-prev' ); ?>
-						</button>
-						<button type="button" class="reviews__arrow reviews__arrow-next">
-							<?php echo vroomqc_get_svg( 'icons/icons-sprite.svg#arrow-icon-next' ); ?>
-						</button>
-					</div>
+					</div>					
 				</div>
 				<div class="reviews__content content-reviews">
 					<div class='content-reviews__swiper swiper'>
@@ -666,6 +651,14 @@ get_header();
 							</div>
 						</div>
 					</div>
+					<div class="reviews__nav">
+						<button type="button" class="reviews__arrow reviews__arrow-prev">
+							<?php echo vroomqc_get_svg( 'icons/icons-sprite.svg#arrow-icon-prev' ); ?>
+						</button>
+						<button type="button" class="reviews__arrow reviews__arrow-next">
+							<?php echo vroomqc_get_svg( 'icons/icons-sprite.svg#arrow-icon-next' ); ?>
+						</button>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -683,7 +676,7 @@ get_header();
 							<?php esc_html_e( 'We make car buying simple. Browse our certified inventory, get pre-approved online, and enjoy delivery right to your door.', 'vroomqc' ); ?>
 						</p>
 					</div>
-					<a href="#" class='brochure-home__button button'>
+					<a href="<?php echo esc_url( get_permalink( 582 ) ); ?>" class='brochure-home__button button'>
 						<?php esc_html_e( 'Browse cars', 'vroomqc' ); ?>
 					</a>
 				</div>
@@ -804,7 +797,7 @@ get_header();
 				<?php esc_html_e( 'Browse by brand', 'vroomqc' ); ?>
 			</h2>
 			<div class="brands__items">
-				<a href="#" class="brands__item">
+				<a href="<?php echo esc_url( get_permalink( 582 ) ); ?>?make=toyota" class="brands__item">
 					<div class="brands__logo">
 						<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/homepage/brands/brand_01.png' ); ?>" loading="lazy" alt="<?php esc_attr_e( 'brand logo', 'vroomqc' ); ?>">
 					</div>
@@ -812,7 +805,7 @@ get_header();
 						<?php esc_html_e( 'Toyota', 'vroomqc' ); ?>
 					</div>
 				</a>
-				<a href="#" class="brands__item">
+				<a href="<?php echo esc_url( get_permalink( 582 ) ); ?>?make=bmw" class="brands__item">
 					<div class="brands__logo">
 						<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/homepage/brands/brand_02.png' ); ?>" loading="lazy" alt="<?php esc_attr_e( 'brand logo', 'vroomqc' ); ?>">
 					</div>
@@ -820,7 +813,7 @@ get_header();
 						<?php esc_html_e( 'BMW', 'vroomqc' ); ?>
 					</div>
 				</a>
-				<a href="#" class="brands__item">
+				<a href="<?php echo esc_url( get_permalink( 582 ) ); ?>?make=chevrolet" class="brands__item">
 					<div class="brands__logo">
 						<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/homepage/brands/brand_03.png' ); ?>" loading="lazy" alt="<?php esc_attr_e( 'brand logo', 'vroomqc' ); ?>">
 					</div>
@@ -828,7 +821,7 @@ get_header();
 						<?php esc_html_e( 'Chevrolet', 'vroomqc' ); ?>
 					</div>
 				</a>
-				<a href="#" class="brands__item">
+				<a href="<?php echo esc_url( get_permalink( 582 ) ); ?>?make=ford" class="brands__item">
 					<div class="brands__logo">
 						<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/homepage/brands/brand_04.png' ); ?>" loading="lazy" alt="<?php esc_attr_e( 'brand logo', 'vroomqc' ); ?>">
 					</div>
@@ -836,7 +829,7 @@ get_header();
 						<?php esc_html_e( 'Ford', 'vroomqc' ); ?>
 					</div>
 				</a>
-				<a href="#" class="brands__item">
+				<a href="<?php echo esc_url( get_permalink( 582 ) ); ?>?make=honda" class="brands__item">
 					<div class="brands__logo">
 						<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/homepage/brands/brand_05.png' ); ?>" loading="lazy" alt="<?php esc_attr_e( 'brand logo', 'vroomqc' ); ?>">
 					</div>
@@ -844,7 +837,7 @@ get_header();
 						<?php esc_html_e( 'Honda', 'vroomqc' ); ?>
 					</div>
 				</a>
-				<a href="#" class="brands__item">
+				<a href="<?php echo esc_url( get_permalink( 582 ) ); ?>?make=mazda" class="brands__item">
 					<div class="brands__logo">
 						<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/homepage/brands/brand_06.png' ); ?>" loading="lazy" alt="<?php esc_attr_e( 'brand logo', 'vroomqc' ); ?>">
 					</div>
@@ -852,7 +845,7 @@ get_header();
 						<?php esc_html_e( 'Mazda', 'vroomqc' ); ?>
 					</div>
 				</a>
-				<a href="#" class="brands__item">
+				<a href="<?php echo esc_url( get_permalink( 582 ) ); ?>?make=nissan" class="brands__item">
 					<div class="brands__logo">
 						<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/homepage/brands/brand_07.png' ); ?>" loading="lazy" alt="<?php esc_attr_e( 'brand logo', 'vroomqc' ); ?>">
 					</div>
@@ -860,7 +853,7 @@ get_header();
 						<?php esc_html_e( 'Nissan', 'vroomqc' ); ?>
 					</div>
 				</a>
-				<a href="#" class="brands__item">
+				<a href="<?php echo esc_url( get_permalink( 582 ) ); ?>?make=volkswagen" class="brands__item">
 					<div class="brands__logo">
 						<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/homepage/brands/brand_08.png' ); ?>" loading="lazy" alt="<?php esc_attr_e( 'brand logo', 'vroomqc' ); ?>">
 					</div>
@@ -868,7 +861,7 @@ get_header();
 						<?php esc_html_e( 'Volkswagen', 'vroomqc' ); ?>
 					</div>
 				</a>
-				<a href="#" class="brands__item">
+				<a href="<?php echo esc_url( get_permalink( 582 ) ); ?>?make=subaru" class="brands__item">
 					<div class="brands__logo">
 						<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/homepage/brands/brand_09.png' ); ?>" loading="lazy" alt="<?php esc_attr_e( 'brand logo', 'vroomqc' ); ?>">
 					</div>
@@ -876,7 +869,7 @@ get_header();
 						<?php esc_html_e( 'Subaru', 'vroomqc' ); ?>
 					</div>
 				</a>
-				<a href="#" class="brands__item">
+				<a href="<?php echo esc_url( get_permalink( 582 ) ); ?>?make=hyundai" class="brands__item">
 					<div class="brands__logo">
 						<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/homepage/brands/brand_10.png' ); ?>" loading="lazy" alt="<?php esc_attr_e( 'brand logo', 'vroomqc' ); ?>">
 					</div>
@@ -884,7 +877,7 @@ get_header();
 						<?php esc_html_e( 'Hyundai', 'vroomqc' ); ?>
 					</div>
 				</a>
-				<a href="#" class="brands__item">
+				<a href="<?php echo esc_url( get_permalink( 582 ) ); ?>?make=kia" class="brands__item">
 					<div class="brands__logo">
 						<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/homepage/brands/brand_11.png' ); ?>" loading="lazy" alt="<?php esc_attr_e( 'brand logo', 'vroomqc' ); ?>">
 					</div>
@@ -892,7 +885,7 @@ get_header();
 						<?php esc_html_e( 'Kia', 'vroomqc' ); ?>
 					</div>
 				</a>
-				<a href="#" class="brands__item">
+				<a href="<?php echo esc_url( get_permalink( 582 ) ); ?>?make=audi" class="brands__item">
 					<div class="brands__logo">
 						<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/homepage/brands/brand_12.png' ); ?>" loading="lazy" alt="<?php esc_attr_e( 'brand logo', 'vroomqc' ); ?>">
 					</div>
@@ -902,7 +895,7 @@ get_header();
 				</a>
 			</div>
 			<div class="brands__more">
-				<a href="#" class="brands__button button">
+				<a href="<?php echo esc_url( get_permalink( 582 ) ); ?>" class="brands__button button">
 					<?php esc_html_e( 'Show all brands', 'vroomqc' ); ?>
 				</a>
 			</div>

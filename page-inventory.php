@@ -149,22 +149,22 @@ get_header();
 											<button type="button" class="select__button"><?php esc_html_e( 'Newest listings', 'vroomqc' ); ?></button>
 										</li>
 										<li class="select__item" data-select-menu-option data-sort-value="price_low">
-											<button type="button" class="select__button"><?php esc_html_e( 'Price: Low to High', 'vroomqc' ); ?></button>
+											<button type="button" class="select__button"><?php esc_html_e( 'Lowest price', 'vroomqc' ); ?></button>
 										</li>
 										<li class="select__item" data-select-menu-option data-sort-value="price_high">
-											<button type="button" class="select__button"><?php esc_html_e( 'Price: High to Low', 'vroomqc' ); ?></button>
+											<button type="button" class="select__button"><?php esc_html_e( 'Highest price', 'vroomqc' ); ?></button>
 										</li>
 										<li class="select__item" data-select-menu-option data-sort-value="mileage_low">
-											<button type="button" class="select__button"><?php esc_html_e( 'Mileage: Low to High', 'vroomqc' ); ?></button>
+											<button type="button" class="select__button"><?php esc_html_e( 'Lowest mileage', 'vroomqc' ); ?></button>
 										</li>
 										<li class="select__item" data-select-menu-option data-sort-value="mileage_high">
-											<button type="button" class="select__button"><?php esc_html_e( 'Mileage: High to Low', 'vroomqc' ); ?></button>
+											<button type="button" class="select__button"><?php esc_html_e( 'Highest mileage', 'vroomqc' ); ?></button>
 										</li>
-										<li class="select__item" data-select-menu-option data-sort-value="year_new">
-											<button type="button" class="select__button"><?php esc_html_e( 'Year: Newest to Oldest', 'vroomqc' ); ?></button>
+										<li class="select__item" data-select-menu-option data-sort-value="on_sale">
+											<button type="button" class="select__button"><?php esc_html_e( 'On Sale', 'vroomqc' ); ?></button>
 										</li>
-										<li class="select__item" data-select-menu-option data-sort-value="year_old">
-											<button type="button" class="select__button"><?php esc_html_e( 'Year: Oldest to Newest', 'vroomqc' ); ?></button>
+										<li class="select__item" data-select-menu-option data-sort-value="featured">
+											<button type="button" class="select__button"><?php esc_html_e( 'Featured', 'vroomqc' ); ?></button>
 										</li>
 									</ul>
 								</div>

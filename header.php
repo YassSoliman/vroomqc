@@ -66,7 +66,7 @@
 								</a>
 							</li>
 							<li class="actions-header__item">
-								<a href="#" class="actions-header__link button">
+								<a href="<?php echo esc_url( get_permalink( 520 ) ); ?>" class="actions-header__link button">
 									<?php esc_html_e( 'Pre-qualify', 'vroomqc' ); ?>
 								</a>
 							</li>
@@ -83,6 +83,6 @@
 			
 			<div class="header__message">
 				<?php esc_html_e( 'Pre-qualify in 2 minutes  won\'t affect your credit score.', 'vroomqc' ); ?> 
-				<a href="#" class="header__link"><?php esc_html_e( 'Get started', 'vroomqc' ); ?></a>
+				<a href="<?php echo esc_url( get_permalink( 520 ) ); ?>" class="header__link"><?php esc_html_e( 'Get started', 'vroomqc' ); ?></a>
 			</div>
 		</header>

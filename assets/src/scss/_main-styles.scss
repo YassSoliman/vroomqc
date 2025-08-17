@@ -247,10 +247,37 @@ input {
   top: calc(100% + 0.3125rem);
   right: 0;
   min-width: 100%;
+  z-index: 1000;
+  background: var(--color-white);
+  border: 1px solid #dcdfea;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
 }
+
+/* JavaScript handles the display toggle via slideToggle animation */
 .select__button {
   text-align: left;
   white-space: nowrap;
+  display: block;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: transparent;
+  border: none;
+  color: var(--main-color);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.select__button:hover {
+  background: #f8fafc;
+  color: #3b82f6;
+}
+
+.select__item {
+  list-style: none;
 }
 
 .products {
@@ -2014,6 +2041,8 @@ input {
       -ms-flex-align: center;
           align-items: center;
   gap: 0.75rem;
+  justify-content: center;
+  margin-top: 1rem;
 }
 .reviews__arrow {
   height: 3rem;
@@ -2905,6 +2934,7 @@ input {
 }
 .header-products-main__select._active .select__body {
   border: 0.0625rem solid #dcdfea;
+  /* JavaScript handles display via slideToggle animation */
 }
 .header-products-main__select .select__header {
   background: var(--color-white);
@@ -2943,11 +2973,22 @@ input {
   font-weight: 500;
   font-size: 0.875rem;
   display: block;
-  padding: 0.4375rem 1rem;
+  padding: 0.75rem 1rem;
   width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--main-color);
+  text-align: left;
+  cursor: pointer;
   -webkit-transition: all 0.3s ease 0s;
   transition: all 0.3s ease 0s;
 }
+
+.header-products-main__select .select__button:hover {
+  background: #f8fafc;
+  color: #3b82f6;
+}
+
 @media (any-hover: hover) {
   .header-products-main__select .select__button:hover {
     background: var(--color-accent);
@@ -4956,4 +4997,126 @@ input {
 }
 .bottom-footer__link:hover {
   text-decoration: underline;
+}
+/* Policy Pages Styling */
+.policy-page {
+  padding: 80px 0;
+}
+
+.policy-header {
+  margin-bottom: 60px;
+  
+  &__updated {
+    font-style: italic;
+    color: #666;
+    font-size: 0.9em;
+  }
+}
+
+.policy-content {
+  &__body {
+    margin: 0 auto;
+    
+    h2 {
+      margin-top: 60px;
+      margin-bottom: 24px;
+      &:first-child {
+        margin-top: 0;
+      }
+    }
+    
+    h3 {
+      margin-top: 40px;
+      margin-bottom: 20px;
+    }
+    
+    p {
+      margin-bottom: 20px;
+      line-height: 1.7;
+    }
+    
+    ul, ol {
+      margin: 24px 0;
+      padding-left: 24px;
+      
+      li {
+        margin-bottom: 12px;
+        line-height: 1.6;
+      }
+    }
+    
+    dl {
+      margin: 24px 0;
+      
+      dt {
+        font-weight: 600;
+        margin-bottom: 5px;
+        color: var(--color-text);
+      }
+      
+      dd {
+        margin-left: 0;
+        margin-bottom: 15px;
+        line-height: 1.6;
+        color: var(--color-alt);
+      }
+    }
+    
+    strong {
+      font-weight: 600;
+      color: var(--color-text);
+    }
+    
+    em {
+      font-style: italic;
+      color: #666;
+    }
+    
+    code {
+      background: #f4f4f4;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.9em;
+      color: #d63384;
+    }
+    
+    // Contact info formatting
+    .contact-block {
+      margin: 30px 0;
+      
+      p {
+        margin-bottom: 8px;
+        line-height: 1.6;
+        
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
+  }
+}
+
+.contact-info {
+  background: #f8f9fa;
+  padding: 24px;
+  border-radius: 8px;
+  margin-top: 30px;
+  border-left: 4px solid var(--color-primary);
+  
+  p {
+    margin-bottom: 12px;
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+  
+  a {
+    color: var(--color-primary);
+    text-decoration: none;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+  }
 }

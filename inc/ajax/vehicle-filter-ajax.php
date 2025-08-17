@@ -110,6 +110,37 @@ function vroomqc_get_filtered_vehicles( $page = 1, $search = '', $sort = 'newest
             $args['orderby'] = 'meta_value_num';
             $args['order'] = 'ASC';
             break;
+        case 'on_sale':
+            // Filter and sort vehicles that have old_price and show biggest discounts first
+            $args['meta_query'][] = array(
+                'key' => 'old_price',
+                'value' => '',
+                'compare' => '!='
+            );
+            $args['meta_query'][] = array(
+                'key' => 'old_price',
+                'type' => 'NUMERIC',
+                'compare' => 'EXISTS'
+            );
+            $args['meta_query']['relation'] = 'AND';
+            
+            // Custom orderby to sort by discount amount (old_price - price) DESC
+            $args['orderby'] = array(
+                'meta_value_num' => 'DESC',
+                'date' => 'DESC'
+            );
+            // We'll use a custom meta_key that calculates discount in the query
+            add_filter('posts_join', 'vroomqc_join_price_fields_for_discount_sort');
+            add_filter('posts_orderby', 'vroomqc_orderby_discount_amount');
+            break;
+        case 'featured':
+            // Sort by featured field (if exists), then by date
+            $args['meta_key'] = 'featured';
+            $args['orderby'] = array(
+                'meta_value_num' => 'DESC',
+                'date' => 'DESC'
+            );
+            break;
         case 'newest':
         default:
             $args['orderby'] = 'date';
@@ -232,14 +263,14 @@ function vroomqc_generate_pagination( $current_page, $total_pages ) {
     // First page button
     if ( $current_page > 1 ) {
         $pagination .= '<button type="button" class="pagination__button pagination__button--first" data-page="1" aria-label="' . esc_attr__( 'Go to first page', 'vroomqc' ) . '">';
-        $pagination .= '<span class="pagination__icon">' . vroomqc_get_svg( 'icons/icons-sprite.svg#pagination-first' ) . '</span>';
+        $pagination .= '<span class="pagination__icon">«</span>';
         $pagination .= '</button>';
     }
     
     // Previous page button
     if ( $current_page > 1 ) {
         $pagination .= '<button type="button" class="pagination__button pagination__button--prev" data-page="' . ( $current_page - 1 ) . '" aria-label="' . esc_attr__( 'Go to previous page', 'vroomqc' ) . '">';
-        $pagination .= '<span class="pagination__icon">' . vroomqc_get_svg( 'icons/icons-sprite.svg#pagination-prev' ) . '</span>';
+        $pagination .= '<span class="pagination__icon">‹</span>';
         $pagination .= '</button>';
     }
     
@@ -259,14 +290,14 @@ function vroomqc_generate_pagination( $current_page, $total_pages ) {
     // Next page button
     if ( $current_page < $total_pages ) {
         $pagination .= '<button type="button" class="pagination__button pagination__button--next" data-page="' . ( $current_page + 1 ) . '" aria-label="' . esc_attr__( 'Go to next page', 'vroomqc' ) . '">';
-        $pagination .= '<span class="pagination__icon">' . vroomqc_get_svg( 'icons/icons-sprite.svg#pagination-next' ) . '</span>';
+        $pagination .= '<span class="pagination__icon">›</span>';
         $pagination .= '</button>';
     }
     
     // Last page button
     if ( $current_page < $total_pages ) {
         $pagination .= '<button type="button" class="pagination__button pagination__button--last" data-page="' . $total_pages . '" aria-label="' . esc_attr__( 'Go to last page', 'vroomqc' ) . '">';
-        $pagination .= '<span class="pagination__icon">' . vroomqc_get_svg( 'icons/icons-sprite.svg#pagination-last' ) . '</span>';
+        $pagination .= '<span class="pagination__icon">»</span>';
         $pagination .= '</button>';
     }
     
@@ -552,4 +583,38 @@ function vroomqc_get_taxonomy_options() {
     }
     
     return $options;
+}
+
+/**
+ * Custom join for discount sorting
+ */
+function vroomqc_join_price_fields_for_discount_sort( $join ) {
+    global $wpdb;
+    
+    // Only apply for vehicle queries when sorting by discount
+    if ( isset( $_POST['sort'] ) && $_POST['sort'] === 'on_sale' ) {
+        $join .= " LEFT JOIN {$wpdb->postmeta} AS pm_price ON {$wpdb->posts}.ID = pm_price.post_id AND pm_price.meta_key = 'price'";
+        $join .= " LEFT JOIN {$wpdb->postmeta} AS pm_old_price ON {$wpdb->posts}.ID = pm_old_price.post_id AND pm_old_price.meta_key = 'old_price'";
+    }
+    
+    return $join;
+}
+
+/**
+ * Custom orderby for discount sorting
+ */
+function vroomqc_orderby_discount_amount( $orderby ) {
+    global $wpdb;
+    
+    // Only apply for vehicle queries when sorting by discount
+    if ( isset( $_POST['sort'] ) && $_POST['sort'] === 'on_sale' ) {
+        // Sort by discount amount (old_price - price) in descending order
+        $orderby = "(CAST(pm_old_price.meta_value AS SIGNED) - CAST(pm_price.meta_value AS SIGNED)) DESC, {$wpdb->posts}.post_date DESC";
+        
+        // Remove filters after use to prevent affecting other queries
+        remove_filter('posts_join', 'vroomqc_join_price_fields_for_discount_sort');
+        remove_filter('posts_orderby', 'vroomqc_orderby_discount_amount');
+    }
+    
+    return $orderby;
 }

@@ -69,18 +69,6 @@ $vehicle_title = vroomqc_get_vehicle_title( $vehicle_id );
                             </li>
                             <li class="breadcrumb__item">
                                 <a href="#" class="breadcrumb__link">
-                                    <?php esc_html_e( 'Used cars', 'vroomqc' ); ?>
-                                </a>
-                            </li>
-                            <?php if ( $make_name ) : ?>
-                            <li class="breadcrumb__item">
-                                <a href="#" class="breadcrumb__link">
-                                    <?php echo esc_html( $make_name ); ?>
-                                </a>
-                            </li>
-                            <?php endif; ?>
-                            <li class="breadcrumb__item">
-                                <a href="#" class="breadcrumb__link">
                                     <?php echo esc_html( $vehicle_title ); ?>
                                 </a>
                             </li>
@@ -174,7 +162,7 @@ $vehicle_title = vroomqc_get_vehicle_title( $vehicle_id );
                         </h2>
                         <div class="description-single-product__text text-block" data-show-more-content>
                             <?php if ( $short_description ) : ?>
-                                <p><?php echo esc_html( $short_description ); ?></p>
+                                <?php echo wpautop( $short_description ); ?>
                             <?php endif; ?>
                             <?php if ( $long_description ) : ?>
                                 <?php echo wp_kses_post( $long_description ); ?>
