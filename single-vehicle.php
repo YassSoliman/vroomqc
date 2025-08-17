@@ -193,8 +193,10 @@ $vehicle_title = vroomqc_get_vehicle_title( $vehicle_id );
                         <?php if ( $price ) : ?>
                             <?php if ( $old_price && $old_price > $price ) : ?>
                                 <span class="description-single-product__old-price">$<?php echo number_format( $old_price ); ?></span>
-                            <?php endif; ?>
+                                <span class="description-single-product__new-price">$<?php echo number_format( $price ); ?></span>
+                            <?php else: ?>
                             $<?php echo number_format( $price ); ?>
+                            <?php endif; ?>
                         <?php else : ?>
                             <?php esc_html_e( 'Contact us', 'vroomqc' ); ?>
                         <?php endif; ?>

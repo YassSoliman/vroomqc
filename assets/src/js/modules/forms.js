@@ -13,7 +13,12 @@ export class Forms {
 	init() {
 		this.setupSelectMenus();
 		this.setupSpollers();
-		this.setupPriceSlider();
+		
+		// Only setup price slider if we're not on inventory page (to avoid conflicts)
+		if (!document.getElementById('vehicles-grid')) {
+			this.setupPriceSlider();
+		}
+		
 		this.setupNumberInputs();
 		this.setupShowMore();
 		this.setupCopyButtons();
@@ -148,14 +153,23 @@ export class Forms {
 		const spollerTitles = spollersBlock.querySelectorAll('[data-spoller]');
 		if (spollerTitles.length > 0) {
 			spollerTitles.forEach(spollerTitle => {
-				if (hideSpollerBody) {
-					spollerTitle.removeAttribute('tabindex');
-					if (!spollerTitle.classList.contains('_active')) {
-						spollerTitle.nextElementSibling.hidden = true;
+				// Find the body element - it could be nextElementSibling of button or container
+				let spollerBody = spollerTitle.nextElementSibling;
+				const headerContainer = spollerTitle.closest('.body-products-aside__header-container');
+				if (headerContainer) {
+					spollerBody = headerContainer.nextElementSibling;
+				}
+				
+				if (spollerBody) {
+					if (hideSpollerBody) {
+						spollerTitle.removeAttribute('tabindex');
+						if (!spollerTitle.classList.contains('_active')) {
+							spollerBody.hidden = true;
+						}
+					} else {
+						spollerTitle.setAttribute('tabindex', '-1');
+						spollerBody.hidden = false;
 					}
-				} else {
-					spollerTitle.setAttribute('tabindex', '-1');
-					spollerTitle.nextElementSibling.hidden = false;
 				}
 			});
 		}
@@ -173,7 +187,17 @@ export class Forms {
 					this.hideSpollerBody(spollersBlock);
 				}
 				spollerTitle.classList.toggle('_active');
-				this.slideToggle(spollerTitle.nextElementSibling, 500);
+				
+				// Find the body element - it could be nextElementSibling of button or container
+				let spollerBody = spollerTitle.nextElementSibling;
+				const headerContainer = spollerTitle.closest('.body-products-aside__header-container');
+				if (headerContainer) {
+					spollerBody = headerContainer.nextElementSibling;
+				}
+				
+				if (spollerBody) {
+					this.slideToggle(spollerBody, 500);
+				}
 			}
 			e.preventDefault();
 		}

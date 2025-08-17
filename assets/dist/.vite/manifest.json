@@ -4,11 +4,12 @@
     "src": "assets/images/homepage/about/back.svg"
   },
   "assets/src/js/main.js": {
-    "file": "js/main-TSvPsNtC.js",
+    "file": "js/main-Efk-typS.js",
     "name": "main",
     "src": "assets/src/js/main.js",
     "isEntry": true,
     "dynamicImports": [
+      "node_modules/nouislider/dist/nouislider.mjs",
       "node_modules/nouislider/dist/nouislider.mjs"
     ],
     "css": [
@@ -16,7 +17,7 @@
     ]
   },
   "assets/src/scss/style.scss": {
-    "file": "css/style-Cg5OBZ1I.css",
+    "file": "css/style-B-7ca9Jq.css",
     "src": "assets/src/scss/style.scss",
     "isEntry": true,
     "names": [

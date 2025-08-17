@@ -27,6 +27,10 @@ Nicolas Gallagher and Jonathan Neal https://necolas.github.io/normalize.css/
 @use 'mixins';
 @use 'main-styles';
 
+// Import component styles
+@import 'components/pagination';
+@import 'components/filter-pills';
+
 // Import external library CSS
 @import 'nouislider/dist/nouislider.css';
 

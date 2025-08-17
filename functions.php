@@ -217,6 +217,15 @@ function vroomqc_scripts() {
 	wp_enqueue_style( 'lightgallery', get_template_directory_uri() . '/assets/lib/lightgallery.min.css', array(), $version );
 	wp_enqueue_script( 'lightgallery', get_template_directory_uri() . '/assets/lib/lightgallery.min.js', array(), $version, true );
 
+	// Localize script for AJAX on inventory page
+	if ( is_page_template( 'page-inventory.php' ) || is_page( 'inventory' ) ) {
+		wp_localize_script( 'vroomqc-main', 'vroomqc_ajax', array(
+			'ajax_url' => admin_url( 'admin-ajax.php' ),
+			'nonce' => wp_create_nonce( 'vroomqc_filter_nonce' ),
+			'posts_per_page' => 15
+		) );
+	}
+
 	// The original static site uses only the main script.js file - no separate navigation.js needed
 
 	if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
@@ -400,6 +409,291 @@ require_once get_template_directory() . '/inc/vehicle/helpers.php';
 require_once get_template_directory() . '/inc/vehicle/vin-decoder.php';
 require_once get_template_directory() . '/inc/vehicle/bulk-import.php';
 require_once get_template_directory() . '/inc/vehicle/bulk-export.php';
+
+/**
+ * Include AJAX handlers
+ */
+require_once get_template_directory() . '/inc/ajax/vehicle-filter-ajax.php';
+
+/**
+ * Helper function to render dynamic taxonomy filters
+ */
+function vroomqc_render_taxonomy_filter( $taxonomy_slug, $label, $show_search = false ) {
+	// Get terms for this taxonomy with vehicle counts
+	$terms = get_terms( array(
+		'taxonomy' => $taxonomy_slug,
+		'hide_empty' => true,
+		'orderby' => 'count',
+		'order' => 'DESC'
+	) );
+	
+	if ( is_wp_error( $terms ) || empty( $terms ) ) {
+		return;
+	}
+	
+	// Count vehicles for each term to filter out empty ones
+	$filtered_terms = array();
+	foreach ( $terms as $term ) {
+		$vehicle_count = get_posts( array(
+			'post_type' => 'vehicle',
+			'posts_per_page' => -1,
+			'tax_query' => array(
+				array(
+					'taxonomy' => $taxonomy_slug,
+					'field' => 'term_id',
+					'terms' => $term->term_id
+				)
+			),
+			'meta_query' => array(
+				array(
+					'key' => 'vendu',
+					'value' => '0',
+					'compare' => '='
+				)
+			),
+			'fields' => 'ids'
+		) );
+		
+		if ( ! empty( $vehicle_count ) ) {
+			$term->vehicle_count = count( $vehicle_count );
+			$filtered_terms[] = $term;
+		}
+	}
+	
+	if ( empty( $filtered_terms ) ) {
+		return;
+	}
+	
+	// Generate unique ID for collapsible section
+	$section_id = $taxonomy_slug . '-filter';
+	
+	echo '<div class="body-products-aside__item">';
+	echo '<div class="body-products-aside__header-container">';
+	echo '<button type="button" class="body-products-aside__header" data-spoller>';
+	echo '<span class="body-products-aside__text-base">' . esc_html( $label ) . '</span>';
+	echo '<span class="body-products-aside__icon">' . vroomqc_get_svg( 'icons/icons-sprite.svg#drop-down-icon' ) . '</span>';
+	echo '</button>';
+	if ( $show_search ) {
+		echo '<button type="button" class="body-products-aside__search-toggle" data-search-toggle="' . esc_attr( $taxonomy_slug ) . '" aria-label="' . esc_attr( sprintf( __( 'Search %s', 'vroomqc' ), $label ) ) . '">';
+		echo '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>';
+		echo '</button>';
+	}
+	echo '</div>';
+	echo '<div class="body-products-aside__body">';
+	
+	// Add search input if enabled (hidden by default)
+	if ( $show_search ) {
+		echo '<div class="body-products-aside__search" data-search-container="' . esc_attr( $taxonomy_slug ) . '" style="display: none;">';
+		echo '<input type="text" class="body-products-aside__search-input" placeholder="' . esc_attr( sprintf( __( 'Search %s...', 'vroomqc' ), strtolower( $label ) ) ) . '" data-filter-search="' . esc_attr( $taxonomy_slug ) . '">';
+		echo '</div>';
+	}
+	
+	echo '<div class="body-products-aside__rows" data-filter-rows="' . esc_attr( $taxonomy_slug ) . '">';
+	
+	foreach ( $filtered_terms as $term ) {
+		$checkbox_id = $taxonomy_slug . '-' . $term->slug;
+		// Only disable zero-count items for non-model taxonomies (Model taxonomy hides them instead)
+		$is_disabled = $taxonomy_slug !== 'model' && $term->vehicle_count == 0;
+		$disabled_attr = $is_disabled ? ' disabled' : '';
+		$disabled_class = $is_disabled ? ' body-products-aside__row--disabled' : '';
+		
+		echo '<div class="body-products-aside__row' . $disabled_class . '">';
+		echo '<input type="checkbox" id="' . esc_attr( $checkbox_id ) . '" class="body-products-aside__checkbox" data-filter-taxonomy="' . esc_attr( $taxonomy_slug ) . '" value="' . esc_attr( $term->slug ) . '"' . $disabled_attr . '>';
+		echo '<label for="' . esc_attr( $checkbox_id ) . '" class="body-products-aside__caption">';
+		echo esc_html( $term->name );
+		if ( isset( $term->vehicle_count ) ) {
+			echo ' <span class="filter-count">(' . $term->vehicle_count . ')</span>';
+		}
+		echo '</label>';
+		echo '</div>';
+	}
+	
+	echo '</div>';
+	
+	echo '</div>';
+	echo '</div>';
+}
+
+/**
+ * Helper function to render grouped model filter with make labels
+ */
+function vroomqc_render_model_filter_grouped( $show_search = false ) {
+	// Get all vehicles to discover make-model relationships
+	$vehicles = get_posts( array(
+		'post_type' => 'vehicle',
+		'posts_per_page' => -1,
+		'meta_query' => array(
+			array(
+				'key' => 'vendu',
+				'value' => '0',
+				'compare' => '='
+			)
+		),
+		'fields' => 'ids'
+	) );
+	
+	if ( empty( $vehicles ) ) {
+		return;
+	}
+	
+	// Build make-model relationships
+	$make_model_map = array();
+	$model_counts = array();
+	
+	foreach ( $vehicles as $vehicle_id ) {
+		$makes = get_the_terms( $vehicle_id, 'make' );
+		$models = get_the_terms( $vehicle_id, 'model' );
+		
+		if ( ! is_wp_error( $makes ) && ! empty( $makes ) && ! is_wp_error( $models ) && ! empty( $models ) ) {
+			// Use the first make for each model (in case of multiple makes)
+			$make = $makes[0];
+			
+			foreach ( $models as $model ) {
+				// Initialize if not exists
+				if ( ! isset( $make_model_map[ $make->slug ] ) ) {
+					$make_model_map[ $make->slug ] = array(
+						'name' => $make->name,
+						'models' => array()
+					);
+				}
+				
+				// Add model to this make if not already added
+				if ( ! isset( $make_model_map[ $make->slug ]['models'][ $model->slug ] ) ) {
+					$make_model_map[ $make->slug ]['models'][ $model->slug ] = array(
+						'name' => $model->name,
+						'count' => 0
+					);
+				}
+				
+				// Increment count
+				$make_model_map[ $make->slug ]['models'][ $model->slug ]['count']++;
+				
+				// Track overall model counts
+				if ( ! isset( $model_counts[ $model->slug ] ) ) {
+					$model_counts[ $model->slug ] = 0;
+				}
+				$model_counts[ $model->slug ]++;
+			}
+		}
+	}
+	
+	if ( empty( $make_model_map ) ) {
+		return;
+	}
+	
+	// Sort makes alphabetically
+	ksort( $make_model_map );
+	
+	echo '<div class="body-products-aside__item">';
+	echo '<div class="body-products-aside__header-container">';
+	echo '<button type="button" class="body-products-aside__header" data-spoller>';
+	echo '<span class="body-products-aside__text-base">' . esc_html__( 'Model', 'vroomqc' ) . '</span>';
+	echo '<span class="body-products-aside__icon">' . vroomqc_get_svg( 'icons/icons-sprite.svg#drop-down-icon' ) . '</span>';
+	echo '</button>';
+	if ( $show_search ) {
+		echo '<button type="button" class="body-products-aside__search-toggle" data-search-toggle="model" aria-label="' . esc_attr__( 'Search Model', 'vroomqc' ) . '">';
+		echo '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>';
+		echo '</button>';
+	}
+	echo '</div>';
+	echo '<div class="body-products-aside__body">';
+	
+	// Add search input if enabled (hidden by default)
+	if ( $show_search ) {
+		echo '<div class="body-products-aside__search" data-search-container="model" style="display: none;">';
+		echo '<input type="text" class="body-products-aside__search-input" placeholder="' . esc_attr__( 'Search model...', 'vroomqc' ) . '" data-filter-search="model">';
+		echo '</div>';
+	}
+	
+	echo '<div class="body-products-aside__rows" data-filter-rows="model">';
+	
+	foreach ( $make_model_map as $make_slug => $make_data ) {
+		// Make group label
+		echo '<div class="body-products-aside__make-group" data-make-group="' . esc_attr( $make_slug ) . '">';
+		echo '<div class="body-products-aside__make-label">' . esc_html( $make_data['name'] ) . '</div>';
+		
+		// Sort models alphabetically
+		$sorted_models = $make_data['models'];
+		uasort( $sorted_models, function( $a, $b ) {
+			return strcasecmp( $a['name'], $b['name'] );
+		} );
+		
+		foreach ( $sorted_models as $model_slug => $model_data ) {
+			$checkbox_id = 'model-' . $model_slug;
+			$count = $model_data['count'];
+			
+			echo '<div class="body-products-aside__row body-products-aside__row--model" data-model-make="' . esc_attr( $make_slug ) . '">';
+			echo '<input type="checkbox" id="' . esc_attr( $checkbox_id ) . '" class="body-products-aside__checkbox" data-filter-taxonomy="model" value="' . esc_attr( $model_slug ) . '">';
+			echo '<label for="' . esc_attr( $checkbox_id ) . '" class="body-products-aside__caption">';
+			echo esc_html( $model_data['name'] );
+			echo ' <span class="filter-count">(' . $count . ')</span>';
+			echo '</label>';
+			echo '</div>';
+		}
+		
+		echo '</div>';
+	}
+	
+	echo '</div>';
+	echo '</div>';
+	echo '</div>';
+}
+
+/**
+ * Helper function to render mileage range filter
+ */
+function vroomqc_render_mileage_filter() {
+	// Get dynamic mileage range
+	$mileage_range = vroomqc_get_mileage_range();
+	
+	echo '<div class="body-products-aside__item">';
+	echo '<button type="button" class="body-products-aside__header" data-spoller>';
+	echo '<span class="body-products-aside__text-base">' . esc_html__( 'Mileage (KM)', 'vroomqc' ) . '</span>';
+	echo '<span class="body-products-aside__icon">' . vroomqc_get_svg( 'icons/icons-sprite.svg#drop-down-icon' ) . '</span>';
+	echo '</button>';
+	echo '<div class="body-products-aside__body">';
+	echo '<div class="body-products-aside__range-slider" id="mileage-range-slider" data-min-value="' . esc_attr( $mileage_range['min'] ) . '" data-max-value="' . esc_attr( $mileage_range['max'] ) . '"></div>';
+	echo '<div class="body-products-aside__input-boxes">';
+	echo '<div class="body-products-aside__input-box">';
+	echo '<label for="mileage-min-input" class="body-products-aside__label">' . esc_html__( 'Min', 'vroomqc' ) . '</label>';
+	echo '<input type="text" value="' . number_format( $mileage_range['min'] ) . ' km" aria-label="' . esc_attr__( 'min-mileage', 'vroomqc' ) . '" id="mileage-min-input" autocomplete="off" data-input-numb class="body-products-aside__value">';
+	echo '</div>';
+	echo '<div class="body-products-aside__input-box">';
+	echo '<label for="mileage-max-input" class="body-products-aside__label">' . esc_html__( 'Max', 'vroomqc' ) . '</label>';
+	echo '<input type="text" value="' . number_format( $mileage_range['max'] ) . ' km" aria-label="' . esc_attr__( 'max-mileage', 'vroomqc' ) . '" id="mileage-max-input" autocomplete="off" data-input-numb class="body-products-aside__value">';
+	echo '</div>';
+	echo '</div>';
+	echo '</div>';
+	echo '</div>';
+}
+
+/**
+ * Helper function to render year range filter
+ */
+function vroomqc_render_year_filter() {
+	// Get dynamic year range
+	$year_range = vroomqc_get_year_range();
+	
+	echo '<div class="body-products-aside__item">';
+	echo '<button type="button" class="body-products-aside__header" data-spoller>';
+	echo '<span class="body-products-aside__text-base">' . esc_html__( 'Year', 'vroomqc' ) . '</span>';
+	echo '<span class="body-products-aside__icon">' . vroomqc_get_svg( 'icons/icons-sprite.svg#drop-down-icon' ) . '</span>';
+	echo '</button>';
+	echo '<div class="body-products-aside__body">';
+	echo '<div class="body-products-aside__range-slider" id="year-range-slider" data-min-value="' . esc_attr( $year_range['min'] ) . '" data-max-value="' . esc_attr( $year_range['max'] ) . '"></div>';
+	echo '<div class="body-products-aside__input-boxes">';
+	echo '<div class="body-products-aside__input-box">';
+	echo '<label for="year-min-input" class="body-products-aside__label">' . esc_html__( 'Min', 'vroomqc' ) . '</label>';
+	echo '<input type="text" value="' . $year_range['min'] . '" aria-label="' . esc_attr__( 'min-year', 'vroomqc' ) . '" id="year-min-input" autocomplete="off" data-input-numb class="body-products-aside__value">';
+	echo '</div>';
+	echo '<div class="body-products-aside__input-box">';
+	echo '<label for="year-max-input" class="body-products-aside__label">' . esc_html__( 'Max', 'vroomqc' ) . '</label>';
+	echo '<input type="text" value="' . $year_range['max'] . '" aria-label="' . esc_attr__( 'max-year', 'vroomqc' ) . '" id="year-max-input" autocomplete="off" data-input-numb class="body-products-aside__value">';
+	echo '</div>';
+	echo '</div>';
+	echo '</div>';
+	echo '</div>';
+}
 
 /**
  * Set fallback featured image for vehicles
