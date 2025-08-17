@@ -25,11 +25,11 @@ Nicolas Gallagher and Jonathan Neal https://necolas.github.io/normalize.css/
 // Import variables and mixins first (using @use for modern SCSS)
 @use 'variables';
 @use 'mixins';
-
-// Import main styles using @forward to include all custom theme styles
 @use 'main-styles';
 
+// Import external library CSS
+@import 'nouislider/dist/nouislider.css';
+
 // Import external library styles (these need to stay as @import)
-@import 'lightgallery.min.css';
 @import 'nouislider.min.css';
 @import 'swiper-bundle.min.css';

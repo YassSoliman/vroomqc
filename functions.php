@@ -55,10 +55,8 @@ function vroomqc_setup() {
 	register_nav_menus(
 		array(
 			'menu-1' => esc_html__( 'Primary', 'vroomqc' ),
-			'footer-explore' => esc_html__( 'Footer Explore', 'vroomqc' ),
-			'footer-company' => esc_html__( 'Footer Company', 'vroomqc' ),
+			'footer-navigation' => esc_html__( 'Footer Navigation', 'vroomqc' ),
 			'footer-legal' => esc_html__( 'Footer Legal', 'vroomqc' ),
-			'social' => esc_html__( 'Social Links', 'vroomqc' ),
 		)
 	);
 
@@ -215,6 +213,10 @@ function vroomqc_scripts() {
 		}
 	}
 
+	// Enqueue lightGallery CSS and JS
+	wp_enqueue_style( 'lightgallery', get_template_directory_uri() . '/assets/lib/lightgallery.min.css', array(), $version );
+	wp_enqueue_script( 'lightgallery', get_template_directory_uri() . '/assets/lib/lightgallery.min.js', array(), $version, true );
+
 	// The original static site uses only the main script.js file - no separate navigation.js needed
 
 	if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
@@ -248,50 +250,25 @@ function vroomqc_get_svg( $svg_path ) {
 }
 
 /**
- * Social menu fallback
+ * Header menu fallback - outputs empty structure for dynamic adapt compatibility
  */
-function vroomqc_social_menu_fallback() {
-	echo '<ul class="footer__list">';
-	echo '<li class="footer__item"><a href="#" aria-label="x" class="footer__link"><img src="' . esc_url( get_template_directory_uri() . '/assets/images/icons/socials/social-icon_01.svg' ) . '" loading="lazy" alt="footer"></a></li>';
-	echo '<li class="footer__item"><a href="#" aria-label="instagram" class="footer__link"><img src="' . esc_url( get_template_directory_uri() . '/assets/images/icons/socials/social-icon_02.svg' ) . '" loading="lazy" alt="footer"></a></li>';
-	echo '<li class="footer__item"><a href="#" aria-label="facebook" class="footer__link"><img src="' . esc_url( get_template_directory_uri() . '/assets/images/icons/socials/social-icon_03.svg' ) . '" loading="lazy" alt="footer"></a></li>';
-	echo '<li class="footer__item"><a href="#" aria-label="youtube" class="footer__link"><img src="' . esc_url( get_template_directory_uri() . '/assets/images/icons/socials/social-icon_04.svg' ) . '" loading="lazy" alt="footer"></a></li>';
-	echo '</ul>';
+function vroomqc_header_menu_fallback() {
+	echo '<ul class="header-menu__list"></ul>';
+}
+
+
+/**
+ * Footer navigation menu fallback - outputs empty structure
+ */
+function vroomqc_footer_navigation_fallback() {
+	// Output empty structure to maintain layout
 }
 
 /**
- * Footer explore menu fallback
- */
-function vroomqc_footer_explore_fallback() {
-	echo '<ul class="navs-footer__list">';
-	echo '<li class="navs-footer__item"><a href="#" class="navs-footer__link">' . esc_html__( 'Find a car', 'vroomqc' ) . '</a></li>';
-	echo '<li class="navs-footer__item"><a href="#" class="navs-footer__link">' . esc_html__( 'Sell or trade', 'vroomqc' ) . '</a></li>';
-	echo '<li class="navs-footer__item"><a href="#" class="navs-footer__link">' . esc_html__( 'Financing', 'vroomqc' ) . '</a></li>';
-	echo '<li class="navs-footer__item"><a href="#" class="navs-footer__link">' . esc_html__( 'Warranty', 'vroomqc' ) . '</a></li>';
-	echo '<li class="navs-footer__item"><a href="#" class="navs-footer__link">' . esc_html__( 'Contact', 'vroomqc' ) . '</a></li>';
-	echo '</ul>';
-}
-
-/**
- * Footer company menu fallback
- */
-function vroomqc_footer_company_fallback() {
-	echo '<ul class="navs-footer__list">';
-	echo '<li class="navs-footer__item"><a href="#" class="navs-footer__link">' . esc_html__( 'About', 'vroomqc' ) . '</a></li>';
-	echo '<li class="navs-footer__item"><a href="#" class="navs-footer__link">' . esc_html__( 'Careers', 'vroomqc' ) . '</a></li>';
-	echo '<li class="navs-footer__item"><a href="#" class="navs-footer__link">' . esc_html__( 'Blog', 'vroomqc' ) . '</a></li>';
-	echo '<li class="navs-footer__item"><a href="#" class="navs-footer__link">' . esc_html__( 'FAQs', 'vroomqc' ) . '</a></li>';
-	echo '</ul>';
-}
-
-/**
- * Footer legal menu fallback
+ * Footer legal menu fallback - outputs empty structure
  */
 function vroomqc_footer_legal_fallback() {
-	echo '<ul class="bottom-footer__list">';
-	echo '<li class="bottom-footer__item"><a href="#" class="bottom-footer__link">' . esc_html__( 'Privacy policy', 'vroomqc' ) . '</a></li>';
-	echo '<li class="bottom-footer__item"><a href="#" class="bottom-footer__link">' . esc_html__( 'Terms & conditions', 'vroomqc' ) . '</a></li>';
-	echo '</ul>';
+	echo '<ul class="bottom-footer__list"></ul>';
 }
 
 /**
@@ -317,6 +294,83 @@ function vroomqc_require_inc_recursive( $directory_path ) {
 vroomqc_require_inc_recursive( get_template_directory() . '/inc' );
 
 /**
+ * Load ACF, CPT, and Taxonomies
+ */
+require_once get_template_directory() . '/inc/acf/acf-loader.php';
+require_once get_template_directory() . '/inc/cpt/cpt-loader.php';
+require_once get_template_directory() . '/inc/taxonomies/taxonomies-loader.php';
+
+/**
+ * Vehicle Helper Functions
+ */
+
+/**
+ * Get formatted vehicle title
+ */
+function vroomqc_get_vehicle_title( $post_id = null ) {
+    if ( ! $post_id ) {
+        $post_id = get_the_ID();
+    }
+    
+    $year = get_field( 'year', $post_id );
+    $make_terms = get_the_terms( $post_id, 'make' );
+    $model_terms = get_the_terms( $post_id, 'model' );
+    
+    $make_name = ( $make_terms && ! is_wp_error( $make_terms ) ) ? $make_terms[0]->name : '';
+    $model_name = ( $model_terms && ! is_wp_error( $model_terms ) ) ? $model_terms[0]->name : '';
+    
+    $vehicle_title = trim( $year . ' ' . $make_name . ' ' . $model_name );
+    
+    return ! empty( $vehicle_title ) ? $vehicle_title : get_the_title( $post_id );
+}
+
+/**
+ * Get vehicle price display HTML
+ */
+function vroomqc_get_vehicle_price_display( $post_id = null ) {
+    if ( ! $post_id ) {
+        $post_id = get_the_ID();
+    }
+    
+    $price = get_field( 'price', $post_id );
+    $old_price = get_field( 'old_price', $post_id );
+    
+    ob_start();
+    
+    if ( empty( $price ) ) {
+        echo '<span class="products__value">' . esc_html__( 'Contact us', 'vroomqc' ) . '</span>';
+    } elseif ( ! empty( $old_price ) && $old_price > $price ) {
+        echo '<span class="products__last-price">$' . number_format( $old_price ) . '</span>';
+        echo '<span class="products__current-price">$' . number_format( $price ) . '</span>';
+    } else {
+        echo '<span class="products__value">$' . number_format( $price ) . '</span>';
+    }
+    
+    return ob_get_clean();
+}
+
+/**
+ * Get vehicle payment info
+ */
+function vroomqc_get_vehicle_payment_info( $post_id = null ) {
+    if ( ! $post_id ) {
+        $post_id = get_the_ID();
+    }
+    
+    $biweekly_payment = get_field( 'biweekly_payment', $post_id );
+    $vendu = get_field( 'vendu', $post_id );
+    
+    if ( ! empty( $biweekly_payment ) && ! $vendu ) {
+        return array(
+            'amount' => $biweekly_payment,
+            'formatted' => '$' . number_format( $biweekly_payment ) . '/' . __( 'biweekly', 'vroomqc' )
+        );
+    }
+    
+    return null;
+}
+
+/**
  * WooCommerce support (lean).
  */
 function vroomqc_add_woocommerce_support() {
@@ -338,3 +392,75 @@ add_filter( 'use_block_editor_for_post_type', 'vroomqc_use_block_editor_for_post
 // Disable block-based widgets editor.
 add_filter( 'gutenberg_use_widgets_block_editor', '__return_false' );
 add_filter( 'use_widgets_block_editor', '__return_false' );
+
+/**
+ * Include Vehicle functionality
+ */
+require_once get_template_directory() . '/inc/vehicle/helpers.php';
+require_once get_template_directory() . '/inc/vehicle/vin-decoder.php';
+require_once get_template_directory() . '/inc/vehicle/bulk-import.php';
+require_once get_template_directory() . '/inc/vehicle/bulk-export.php';
+
+/**
+ * Set fallback featured image for vehicles
+ */
+add_filter( 'post_thumbnail_id', function( $thumbnail_id, $post ) {
+    // Only handle vehicles with no thumbnail
+    if ( get_post_type( $post ) === 'vehicle' && ( ! $thumbnail_id || empty( $thumbnail_id ) ) ) {
+        return 4103;
+    }
+    return $thumbnail_id;
+}, 10, 2 );
+
+/**
+ * Set fallback featured image for vehicles in regular WordPress context
+ */
+add_filter( 'post_thumbnail_html', function( $html, $post_id ) {
+    // Only handle empty thumbnails for vehicle post type
+    if ( empty( $html ) && get_post_type( $post_id ) === 'vehicle' ) {
+        return wp_get_attachment_image( 4103, 'post-thumbnail' );
+    }
+    return $html;
+}, 10, 2 );
+
+/**
+ * Google Analytics
+ */
+add_action( 'wp_head', function() {
+    ?>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-1V45PR0PQY"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-1V45PR0PQY');
+  </script>
+    <?php
+}, 1 ); // Priority 1 to load early
+
+/**
+ * Add Meta Pixel
+ */
+add_action( 'wp_head', function() {
+    ?>
+  <!-- Meta Pixel Code -->
+  <script>
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  fbq('init', '660702693633529');
+  fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=660702693633529&ev=PageView&noscript=1"
+  /></noscript>
+  <!-- End Meta Pixel Code -->
+    <?php
+}, 2 ); // Priority 2 to load after GA

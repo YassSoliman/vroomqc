@@ -98,24 +98,36 @@ export class Sliders {
 	}
 
 	setupProductGallery() {
-		const productGallery = document.getElementById('product-gallery');
+		const galleryWrapper = document.getElementById('product-gallery');
 		
-		if (!productGallery) return;
+		if (!galleryWrapper) {
+			return;
+		}
 
-		// Simple lightbox alternative for now
-		const galleryItems = productGallery.querySelectorAll('[data-gallery-wrapper]');
-		
-		galleryItems.forEach(item => {
-			item.addEventListener('click', (e) => {
-				e.preventDefault();
-				// Basic modal functionality - can be enhanced later
-				console.log('Gallery item clicked:', item.href);
-			});
-		});
+		// Use the original lightGallery implementation from vroom-main
+		try {
+			if (typeof lightGallery !== 'undefined') {
+				lightGallery(galleryWrapper, {
+					speed: 500,
+					download: false,
+					getCaptionFromTitleOrAlt: false,
+					hideScrollbar: true,
+					selector: '[data-gallery-wrapper]',
+					mobileSettings: {
+						controls: false,
+						showCloseIcon: true,
+						download: false,
+					},
+					preload: 4,
+				});
+			}
+		} catch (error) {
+			console.error('Failed to initialize lightGallery:', error);
+		}
 	}
 
 	/**
-	 * Destroy all swipers (useful for cleanup)
+	 * Destroy all swipers and lightbox (useful for cleanup)
 	 */
 	destroy() {
 		this.swipers.forEach(swiper => {
@@ -124,6 +136,8 @@ export class Sliders {
 			}
 		});
 		this.swipers.clear();
+		
+		// Note: lightGallery instances are handled globally
 	}
 
 	/**

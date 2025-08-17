@@ -45,6 +45,19 @@ function vroomqc_customize_register( $wp_customize ) {
 		'description' => esc_html__( 'Enter the copyright text for the footer.', 'vroomqc' ),
 	) );
 
+	// Footer Description Setting
+	$wp_customize->add_setting( 'vroomqc_footer_description', array(
+		'default'           => '',
+		'sanitize_callback' => 'wp_kses_post',
+	) );
+
+	$wp_customize->add_control( 'vroomqc_footer_description', array(
+		'label'       => esc_html__( 'Footer Description', 'vroomqc' ),
+		'section'     => 'vroomqc_theme_options',
+		'type'        => 'textarea',
+		'description' => esc_html__( 'Enter a description or SEO content for the footer area.', 'vroomqc' ),
+	) );
+
 	// Social Links Section
 	$wp_customize->add_section( 'vroomqc_social_links', array(
 		'title'    => esc_html__( 'Social Links', 'vroomqc' ),
@@ -72,77 +85,11 @@ function vroomqc_customize_register( $wp_customize ) {
 		) );
 	}
 
-	// Contact Information Section
-	$wp_customize->add_section( 'vroomqc_contact_info', array(
-		'title'    => esc_html__( 'Contact Information', 'vroomqc' ),
-		'priority' => 40,
-	) );
+	// Remove unnecessary default sections
+	$wp_customize->remove_section( 'colors' );
+	$wp_customize->remove_section( 'background_image' );
+	$wp_customize->remove_panel( 'widgets' );
 
-	// Phone Number
-	$wp_customize->add_setting( 'vroomqc_phone_number', array(
-		'default'           => '+1 (514) 123-4567',
-		'sanitize_callback' => 'sanitize_text_field',
-	) );
-
-	$wp_customize->add_control( 'vroomqc_phone_number', array(
-		'label'   => esc_html__( 'Phone Number', 'vroomqc' ),
-		'section' => 'vroomqc_contact_info',
-		'type'    => 'text',
-	) );
-
-	// Email Address
-	$wp_customize->add_setting( 'vroomqc_email_address', array(
-		'default'           => 'hello@vroomqc.com',
-		'sanitize_callback' => 'sanitize_email',
-	) );
-
-	$wp_customize->add_control( 'vroomqc_email_address', array(
-		'label'   => esc_html__( 'Email Address', 'vroomqc' ),
-		'section' => 'vroomqc_contact_info',
-		'type'    => 'email',
-	) );
-
-	// Address
-	$wp_customize->add_setting( 'vroomqc_address', array(
-		'default'           => '123 Main Street, Montreal, QC H3A 1A1',
-		'sanitize_callback' => 'sanitize_textarea_field',
-	) );
-
-	$wp_customize->add_control( 'vroomqc_address', array(
-		'label'   => esc_html__( 'Address', 'vroomqc' ),
-		'section' => 'vroomqc_contact_info',
-		'type'    => 'textarea',
-	) );
-
-	// Hero Section
-	$wp_customize->add_section( 'vroomqc_hero_section', array(
-		'title'    => esc_html__( 'Hero Section', 'vroomqc' ),
-		'priority' => 45,
-	) );
-
-	// Hero Title
-	$wp_customize->add_setting( 'vroomqc_hero_title', array(
-		'default'           => esc_html__( 'Buy or sell your car — 100% online.', 'vroomqc' ),
-		'sanitize_callback' => 'sanitize_text_field',
-	) );
-
-	$wp_customize->add_control( 'vroomqc_hero_title', array(
-		'label'   => esc_html__( 'Hero Title', 'vroomqc' ),
-		'section' => 'vroomqc_hero_section',
-		'type'    => 'text',
-	) );
-
-	// Hero Subtitle
-	$wp_customize->add_setting( 'vroomqc_hero_subtitle', array(
-		'default'           => esc_html__( 'Get pre-qualified in minutes. Delivery in 24h. Québec-based and human-backed.', 'vroomqc' ),
-		'sanitize_callback' => 'sanitize_textarea_field',
-	) );
-
-	$wp_customize->add_control( 'vroomqc_hero_subtitle', array(
-		'label'   => esc_html__( 'Hero Subtitle', 'vroomqc' ),
-		'section' => 'vroomqc_hero_section',
-		'type'    => 'textarea',
-	) );
 }
 add_action( 'customize_register', 'vroomqc_customize_register' );
 

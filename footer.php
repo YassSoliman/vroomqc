@@ -11,15 +11,26 @@
 			<div class="footer__container">
 				<div class="footer__body">
 					<div class="footer__actions">
-						<?php if ( has_custom_logo() ) : ?>
-							<div class="footer__logo">
-								<?php the_custom_logo(); ?>
+						<div class="footer__branding">
+							<?php if ( has_custom_logo() ) : ?>
+								<div class="footer__logo">
+									<?php the_custom_logo(); ?>
+								</div>
+							<?php else : ?>
+								<a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="footer__logo" aria-label="<?php esc_attr_e( 'homepage link', 'vroomqc' ); ?>">
+									<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/main/logo-white.png' ); ?>" loading="lazy" alt="<?php bloginfo( 'name' ); ?>">
+								</a>
+							<?php endif; ?>
+							
+							<?php
+							$footer_description = get_theme_mod( 'vroomqc_footer_description' );
+							if ( ! empty( $footer_description ) ) :
+							?>
+							<div class="footer__description">
+								<?php echo wp_kses_post( $footer_description ); ?>
 							</div>
-						<?php else : ?>
-							<a href="<?php echo esc_url( home_url( '/' ) ); ?>" class="footer__logo" aria-label="<?php esc_attr_e( 'homepage link', 'vroomqc' ); ?>">
-								<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/main/logo-white.png' ); ?>" loading="lazy" alt="<?php bloginfo( 'name' ); ?>">
-							</a>
-						<?php endif; ?>
+							<?php endif; ?>
+						</div>
 						
 						<div class="footer__select select" data-select-menu>
 							<h2 class="select__label"><?php esc_html_e( 'Language', 'vroomqc' ); ?></h2>
@@ -39,12 +50,14 @@
 							</ul>
 						</div>
 						
+						<?php
+						$social_links = vroomqc_get_social_links();
+						if ( ! empty( $social_links ) ) :
+						?>
 						<div class="footer__socials">
 							<h2 class="footer__label"><?php esc_html_e( 'Social', 'vroomqc' ); ?></h2>
-							<?php
-							$social_links = vroomqc_get_social_links();
-							if ( ! empty( $social_links ) ) :
-								echo '<ul class="footer__list">';
+							<ul class="footer__list">
+								<?php
 								$social_icons = array(
 									'twitter'   => 'social-icon_01.svg',
 									'instagram' => 'social-icon_02.svg',
@@ -53,67 +66,31 @@
 								);
 								foreach ( $social_links as $platform => $url ) :
 									$icon = isset( $social_icons[ $platform ] ) ? $social_icons[ $platform ] : 'social-icon_01.svg';
-							?>
+								?>
 								<li class="footer__item">
 									<a href="<?php echo esc_url( $url ); ?>" aria-label="<?php echo esc_attr( $platform ); ?>" class="footer__link" target="_blank" rel="noopener noreferrer">
 										<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/icons/socials/' . $icon ); ?>" loading="lazy" alt="<?php echo esc_attr( $platform ); ?>">
 									</a>
 								</li>
-							<?php
-								endforeach;
-								echo '</ul>';
-							else :
-								wp_nav_menu(
-									array(
-										'theme_location' => 'social',
-										'menu_id'        => 'social-menu',
-										'container'      => false,
-										'items_wrap'     => '<ul class="footer__list">%3$s</ul>',
-										'walker'         => new Footer_Nav_Walker(),
-										'fallback_cb'    => 'vroomqc_social_menu_fallback',
-									)
-								);
-							endif;
-							?>
+								<?php endforeach; ?>
+							</ul>
 						</div>
+						<?php endif; ?>
 					</div>
 					
 					<div class="navs-footer">
-						<nav class="navs-footer__menu">
-							<h2 class="navs-footer__title">
-								<?php esc_html_e( 'Explore', 'vroomqc' ); ?>
-							</h2>
-							<?php
-							wp_nav_menu(
-								array(
-									'theme_location' => 'footer-explore',
-									'menu_id'        => 'footer-explore-menu',
-									'container'      => false,
-									'items_wrap'     => '<ul class="navs-footer__list">%3$s</ul>',
-									'walker'         => new Footer_Nav_Walker(),
-									'fallback_cb'    => 'vroomqc_footer_explore_fallback',
-								)
-							);
-							?>
-						</nav>
-						
-						<nav class="navs-footer__menu">
-							<h2 class="navs-footer__title">
-								<?php esc_html_e( 'Company', 'vroomqc' ); ?>
-							</h2>
-							<?php
-							wp_nav_menu(
-								array(
-									'theme_location' => 'footer-company',
-									'menu_id'        => 'footer-company-menu',
-									'container'      => false,
-									'items_wrap'     => '<ul class="navs-footer__list">%3$s</ul>',
-									'walker'         => new Footer_Nav_Walker(),
-									'fallback_cb'    => 'vroomqc_footer_company_fallback',
-								)
-							);
-							?>
-						</nav>
+						<?php
+						wp_nav_menu(
+							array(
+								'theme_location' => 'footer-navigation',
+								'menu_id'        => 'footer-navigation-menu',
+								'container'      => false,
+								'items_wrap'     => '%3$s',
+								'walker'         => new Footer_Nav_Walker(),
+								'fallback_cb'    => 'vroomqc_footer_navigation_fallback',
+							)
+						);
+						?>
 					</div>
 				</div>
 				

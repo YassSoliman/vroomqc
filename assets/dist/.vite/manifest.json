@@ -4,7 +4,7 @@
     "src": "assets/images/homepage/about/back.svg"
   },
   "assets/src/js/main.js": {
-    "file": "js/main-dw4yuSi0.js",
+    "file": "js/main-TSvPsNtC.js",
     "name": "main",
     "src": "assets/src/js/main.js",
     "isEntry": true,
@@ -16,16 +16,12 @@
     ]
   },
   "assets/src/scss/style.scss": {
-    "file": "css/style-CACO65_L.css",
+    "file": "css/style-Cg5OBZ1I.css",
     "src": "assets/src/scss/style.scss",
     "isEntry": true,
     "names": [
       "style.css"
     ]
-  },
-  "node_modules/nouislider/dist/nouislider.css": {
-    "file": "css/nouislider-DxSIxjtm.css",
-    "src": "node_modules/nouislider/dist/nouislider.css"
   },
   "node_modules/nouislider/dist/nouislider.mjs": {
     "file": "js/nouislider--vCYtMW8.js",

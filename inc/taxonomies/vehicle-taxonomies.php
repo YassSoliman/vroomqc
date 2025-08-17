@@ -1,0 +1,346 @@
+<?php
+/**
+ * Vehicle Taxonomies
+ *
+ * @package vroomqc
+ */
+
+// Prevent direct access
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
+add_action( 'init', function() {
+    // Body Style Taxonomy
+    register_taxonomy( 'body-style', array( 'vehicle' ), array(
+        'labels' => array(
+            'name' => 'Body Styles',
+            'singular_name' => 'Body Style',
+            'menu_name' => 'Body Styles',
+            'all_items' => 'All Body Styles',
+            'edit_item' => 'Edit Body Style',
+            'view_item' => 'View Body Style',
+            'update_item' => 'Update Body Style',
+            'add_new_item' => 'Add New Body Style',
+            'new_item_name' => 'New Body Style Name',
+            'search_items' => 'Search Body Styles',
+            'not_found' => 'No body styles found',
+            'no_terms' => 'No body styles',
+            'items_list_navigation' => 'Body Styles list navigation',
+            'items_list' => 'Body Styles list',
+            'back_to_items' => '← Go to body styles',
+            'item_link' => 'Body Style Link',
+            'item_link_description' => 'A link to a body style',
+        ),
+        'public' => true,
+        'show_in_menu' => true,
+        'show_in_rest' => true,
+        'meta_box_cb' => false,
+    ) );
+
+    // Cylinder Taxonomy
+    register_taxonomy( 'cylinder', array( 'vehicle' ), array(
+        'labels' => array(
+            'name' => 'Cylinders',
+            'singular_name' => 'Cylinder',
+            'menu_name' => 'Cylinders',
+            'all_items' => 'All Cylinders',
+            'edit_item' => 'Edit Cylinder',
+            'view_item' => 'View Cylinder',
+            'update_item' => 'Update Cylinder',
+            'add_new_item' => 'Add New Cylinder',
+            'new_item_name' => 'New Cylinder Name',
+            'search_items' => 'Search Cylinders',
+            'popular_items' => 'Popular Cylinders',
+            'separate_items_with_commas' => 'Separate cylinders with commas',
+            'add_or_remove_items' => 'Add or remove cylinders',
+            'choose_from_most_used' => 'Choose from the most used cylinders',
+            'not_found' => 'No cylinders found',
+            'no_terms' => 'No cylinders',
+            'items_list_navigation' => 'Cylinders list navigation',
+            'items_list' => 'Cylinders list',
+            'back_to_items' => '← Go to cylinders',
+            'item_link' => 'Cylinder Link',
+            'item_link_description' => 'A link to a cylinder',
+        ),
+        'public' => true,
+        'show_in_menu' => true,
+        'show_in_rest' => true,
+        'meta_box_cb' => false,
+    ) );
+
+    // Drivetrain Taxonomy
+    register_taxonomy( 'drivetrain', array( 'vehicle' ), array(
+        'labels' => array(
+            'name' => 'Drivetrains',
+            'singular_name' => 'Drivetrain',
+            'menu_name' => 'Drivetrain',
+            'all_items' => 'All Drivetrain',
+            'edit_item' => 'Edit Drivetrain',
+            'view_item' => 'View Drivetrain',
+            'update_item' => 'Update Drivetrain',
+            'add_new_item' => 'Add New Drivetrain',
+            'new_item_name' => 'New Drivetrain Name',
+            'search_items' => 'Search Drivetrain',
+            'popular_items' => 'Popular Drivetrain',
+            'separate_items_with_commas' => 'Separate drivetrain with commas',
+            'add_or_remove_items' => 'Add or remove drivetrain',
+            'choose_from_most_used' => 'Choose from the most used drivetrain',
+            'not_found' => 'No drivetrain found',
+            'no_terms' => 'No drivetrain',
+            'items_list_navigation' => 'Drivetrain list navigation',
+            'items_list' => 'Drivetrain list',
+            'back_to_items' => '← Go to drivetrain',
+            'item_link' => 'Drivetrain Link',
+            'item_link_description' => 'A link to a drivetrain',
+        ),
+        'public' => true,
+        'show_in_menu' => true,
+        'show_in_rest' => true,
+        'meta_box_cb' => false,
+    ) );
+
+    // Exterior Color Taxonomy
+    register_taxonomy( 'exterior-color', array( 'vehicle' ), array(
+        'labels' => array(
+            'name' => 'Exterior Colors',
+            'singular_name' => 'Exterior Color',
+            'menu_name' => 'Exterior Colors',
+            'all_items' => 'All Exterior Colors',
+            'edit_item' => 'Edit Exterior Color',
+            'view_item' => 'View Exterior Color',
+            'update_item' => 'Update Exterior Color',
+            'add_new_item' => 'Add New Exterior Color',
+            'new_item_name' => 'New Exterior Color Name',
+            'search_items' => 'Search Exterior Colors',
+            'popular_items' => 'Popular Exterior Colors',
+            'separate_items_with_commas' => 'Separate exterior colors with commas',
+            'add_or_remove_items' => 'Add or remove exterior colors',
+            'choose_from_most_used' => 'Choose from the most used exterior colors',
+            'not_found' => 'No exterior colors found',
+            'no_terms' => 'No exterior colors',
+            'items_list_navigation' => 'Exterior Colors list navigation',
+            'items_list' => 'Exterior Colors list',
+            'back_to_items' => '← Go to exterior colors',
+            'item_link' => 'Exterior Color Link',
+            'item_link_description' => 'A link to a exterior color',
+        ),
+        'public' => true,
+        'show_in_menu' => true,
+        'show_in_rest' => true,
+        'meta_box_cb' => false,
+    ) );
+
+    // Fuel Type Taxonomy
+    register_taxonomy( 'fuel-type', array( 'vehicle' ), array(
+        'labels' => array(
+            'name' => 'Fuel Types',
+            'singular_name' => 'Fuel Type',
+            'menu_name' => 'Fuel Types',
+            'all_items' => 'All Fuel Types',
+            'edit_item' => 'Edit Fuel Type',
+            'view_item' => 'View Fuel Type',
+            'update_item' => 'Update Fuel Type',
+            'add_new_item' => 'Add New Fuel Type',
+            'new_item_name' => 'New Fuel Type Name',
+            'search_items' => 'Search Fuel Types',
+            'popular_items' => 'Popular Fuel Types',
+            'separate_items_with_commas' => 'Separate fuel types with commas',
+            'add_or_remove_items' => 'Add or remove fuel types',
+            'choose_from_most_used' => 'Choose from the most used fuel types',
+            'not_found' => 'No fuel types found',
+            'no_terms' => 'No fuel types',
+            'items_list_navigation' => 'Fuel Types list navigation',
+            'items_list' => 'Fuel Types list',
+            'back_to_items' => '← Go to fuel types',
+            'item_link' => 'Fuel Type Link',
+            'item_link_description' => 'A link to a fuel type',
+        ),
+        'public' => true,
+        'show_in_menu' => true,
+        'show_in_rest' => true,
+        'meta_box_cb' => false,
+    ) );
+
+    // Interior Color Taxonomy
+    register_taxonomy( 'interior-color', array( 'vehicle' ), array(
+        'labels' => array(
+            'name' => 'Interior Colors',
+            'singular_name' => 'Interior Color',
+            'menu_name' => 'Interior Colors',
+            'all_items' => 'All Interior Colors',
+            'edit_item' => 'Edit Interior Color',
+            'view_item' => 'View Interior Color',
+            'update_item' => 'Update Interior Color',
+            'add_new_item' => 'Add New Interior Color',
+            'new_item_name' => 'New Interior Color Name',
+            'search_items' => 'Search Interior Colors',
+            'popular_items' => 'Popular Interior Colors',
+            'separate_items_with_commas' => 'Separate interior colors with commas',
+            'add_or_remove_items' => 'Add or remove interior colors',
+            'choose_from_most_used' => 'Choose from the most used interior colors',
+            'not_found' => 'No interior colors found',
+            'no_terms' => 'No interior colors',
+            'items_list_navigation' => 'Interior Colors list navigation',
+            'items_list' => 'Interior Colors list',
+            'back_to_items' => '← Go to interior colors',
+            'item_link' => 'Interior Color Link',
+            'item_link_description' => 'A link to a interior color',
+        ),
+        'public' => true,
+        'show_in_menu' => true,
+        'show_in_rest' => true,
+        'meta_box_cb' => false,
+    ) );
+
+    // Make Taxonomy
+    register_taxonomy( 'make', array( 'vehicle' ), array(
+        'labels' => array(
+            'name' => 'Makes',
+            'singular_name' => 'Make',
+            'menu_name' => 'Makes',
+            'all_items' => 'All Makes',
+            'edit_item' => 'Edit Make',
+            'view_item' => 'View Make',
+            'update_item' => 'Update Make',
+            'add_new_item' => 'Add New Make',
+            'new_item_name' => 'New Make Name',
+            'search_items' => 'Search Makes',
+            'not_found' => 'No makes found',
+            'no_terms' => 'No makes',
+            'items_list_navigation' => 'Makes list navigation',
+            'items_list' => 'Makes list',
+            'back_to_items' => '← Go to makes',
+            'item_link' => 'Make Link',
+            'item_link_description' => 'A link to a make',
+        ),
+        'public' => true,
+        'show_in_menu' => true,
+        'show_in_rest' => true,
+        'meta_box_cb' => false,
+    ) );
+
+    // Manufacturer Taxonomy
+    register_taxonomy( 'manufacturer', array( 'vehicle' ), array(
+        'labels' => array(
+            'name' => 'Manufacturers',
+            'singular_name' => 'Manufacturer',
+            'menu_name' => 'Manufacturers',
+            'all_items' => 'All Manufacturers',
+            'edit_item' => 'Edit Manufacturer',
+            'view_item' => 'View Manufacturer',
+            'update_item' => 'Update Manufacturer',
+            'add_new_item' => 'Add New Manufacturer',
+            'new_item_name' => 'New Manufacturer Name',
+            'search_items' => 'Search Manufacturers',
+            'popular_items' => 'Popular Manufacturers',
+            'separate_items_with_commas' => 'Separate manufacturers with commas',
+            'add_or_remove_items' => 'Add or remove manufacturers',
+            'choose_from_most_used' => 'Choose from the most used manufacturers',
+            'not_found' => 'No manufacturers found',
+            'no_terms' => 'No manufacturers',
+            'items_list_navigation' => 'Manufacturers list navigation',
+            'items_list' => 'Manufacturers list',
+            'back_to_items' => '← Go to manufacturers',
+            'item_link' => 'Manufacturer Link',
+            'item_link_description' => 'A link to a manufacturer',
+        ),
+        'public' => true,
+        'show_in_menu' => true,
+        'show_in_rest' => true,
+        'meta_box_cb' => false,
+    ) );
+
+    // Model Taxonomy
+    register_taxonomy( 'model', array( 'vehicle' ), array(
+        'labels' => array(
+            'name' => 'Models',
+            'singular_name' => 'Model',
+            'menu_name' => 'Models',
+            'all_items' => 'All models',
+            'edit_item' => 'Edit Model',
+            'view_item' => 'View Model',
+            'update_item' => 'Update Model',
+            'add_new_item' => 'Add New Model',
+            'new_item_name' => 'New Model Name',
+            'search_items' => 'Search models',
+            'popular_items' => 'Popular models',
+            'separate_items_with_commas' => 'Separate models with commas',
+            'add_or_remove_items' => 'Add or remove models',
+            'choose_from_most_used' => 'Choose from the most used models',
+            'not_found' => 'No models found',
+            'no_terms' => 'No models',
+            'items_list_navigation' => 'Models list navigation',
+            'items_list' => 'Models list',
+            'back_to_items' => '← Go to models',
+            'item_link' => 'Model Link',
+            'item_link_description' => 'A link to a model',
+        ),
+        'public' => true,
+        'show_in_menu' => true,
+        'show_in_rest' => true,
+        'meta_box_cb' => false,
+    ) );
+
+    // Transmission Taxonomy
+    register_taxonomy( 'transmission', array( 'vehicle' ), array(
+        'labels' => array(
+            'name' => 'Transmissions',
+            'singular_name' => 'Transmission',
+            'menu_name' => 'Transmission',
+            'all_items' => 'All Transmission',
+            'edit_item' => 'Edit Transmission',
+            'view_item' => 'View Transmission',
+            'update_item' => 'Update Transmission',
+            'add_new_item' => 'Add New Transmission',
+            'new_item_name' => 'New Transmission Name',
+            'search_items' => 'Search Transmission',
+            'popular_items' => 'Popular Transmission',
+            'separate_items_with_commas' => 'Separate transmission with commas',
+            'add_or_remove_items' => 'Add or remove transmission',
+            'choose_from_most_used' => 'Choose from the most used transmission',
+            'not_found' => 'No transmission found',
+            'no_terms' => 'No transmission',
+            'items_list_navigation' => 'Transmission list navigation',
+            'items_list' => 'Transmission list',
+            'back_to_items' => '← Go to transmission',
+            'item_link' => 'Transmission Link',
+            'item_link_description' => 'A link to a transmission',
+        ),
+        'public' => true,
+        'show_in_menu' => true,
+        'show_in_rest' => true,
+        'meta_box_cb' => false,
+    ) );
+
+    // Trim Taxonomy
+    register_taxonomy( 'trim', array( 'vehicle' ), array(
+        'labels' => array(
+            'name' => 'Trims',
+            'singular_name' => 'Trim',
+            'menu_name' => 'Trims',
+            'all_items' => 'All Trims',
+            'edit_item' => 'Edit Trim',
+            'view_item' => 'View Trim',
+            'update_item' => 'Update Trim',
+            'add_new_item' => 'Add New Trim',
+            'new_item_name' => 'New Trim Name',
+            'search_items' => 'Search Trims',
+            'popular_items' => 'Popular Trims',
+            'separate_items_with_commas' => 'Separate trims with commas',
+            'add_or_remove_items' => 'Add or remove trims',
+            'choose_from_most_used' => 'Choose from the most used trims',
+            'not_found' => 'No trims found',
+            'no_terms' => 'No trims',
+            'items_list_navigation' => 'Trims list navigation',
+            'items_list' => 'Trims list',
+            'back_to_items' => '← Go to trims',
+            'item_link' => 'Trim Link',
+            'item_link_description' => 'A link to a trim',
+        ),
+        'public' => true,
+        'show_in_menu' => true,
+        'show_in_rest' => true,
+        'meta_box_cb' => false,
+    ) );
+} );

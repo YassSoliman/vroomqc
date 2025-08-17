@@ -195,7 +195,6 @@ export class Forms {
 		try {
 			// Import noUiSlider dynamically with proper error handling
 			const { default: noUiSlider } = await import('nouislider');
-			await import('nouislider/dist/nouislider.css');
 
 			const minInput = document.querySelector('#producs-price-min-input');
 			const maxInput = document.querySelector('#producs-price-max-input');

@@ -9,6 +9,14 @@ export default defineConfig({
         {
           src: 'assets/images/icons/**/*',
           dest: 'images/icons'
+        },
+        {
+          src: 'assets/fonts/**/*',
+          dest: 'fonts'
+        },
+        {
+          src: 'assets/images/**/*',
+          dest: 'images'
         }
       ]
     })

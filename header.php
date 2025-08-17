@@ -42,7 +42,7 @@
 								'container'      => false,
 								'items_wrap'     => '<ul class="header-menu__list">%3$s</ul>',
 								'walker'         => new Custom_Nav_Walker(),
-								'fallback_cb'    => false,
+								'fallback_cb'    => 'vroomqc_header_menu_fallback',
 							)
 						);
 						?>
@@ -81,10 +81,8 @@
 				</div>
 			</div>
 			
-			<?php if ( is_front_page() ) : ?>
 			<div class="header__message">
 				<?php esc_html_e( 'Pre-qualify in 2 minutes  won\'t affect your credit score.', 'vroomqc' ); ?> 
 				<a href="#" class="header__link"><?php esc_html_e( 'Get started', 'vroomqc' ); ?></a>
 			</div>
-			<?php endif; ?>
 		</header>

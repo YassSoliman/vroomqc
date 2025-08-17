@@ -172,163 +172,41 @@ get_header();
 				</div>
 				<div class="content-top-picks">
 					<div class="products">
-						<a href="#" class="products__item _show" data-filter-content="suv">
-							<div class="products__image ibg">
-								<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/homepage/top-picks/top-picks_image_01.jpg' ); ?>" loading="lazy" alt="<?php esc_attr_e( 'car', 'vroomqc' ); ?>">
-							</div>
-							<div class="products__info">
-								<h3 class="products__model">
-									<?php esc_html_e( '2020 Honda CR-V', 'vroomqc' ); ?>
-								</h3>
-								<div class="products__details">
-									<span class="products__mileage">
-										<?php esc_html_e( '65,783 km', 'vroomqc' ); ?>
-									</span>
-									<span class="products__gearbox">
-										<?php esc_html_e( 'Automatic', 'vroomqc' ); ?>
-									</span>
-								</div>
-							</div>
-							<div class="products__footer">
-								<div class="products__price">
-									<span class="products__value">$30,490</span>
-								</div>
-								<div class="products__offer">
-									<?php esc_html_e( 'or', 'vroomqc' ); ?> <span class="products__option">$205/<?php esc_html_e( 'biweekly', 'vroomqc' ); ?></span> <?php esc_html_e( '$0 cash down', 'vroomqc' ); ?>
-								</div>
-							</div>
-						</a>
-						<a href="#" class="products__item _show" data-filter-content="hybrid,up-to-15k">
-							<div class="products__image ibg">
-								<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/homepage/top-picks/top-picks_image_02.jpg' ); ?>" loading="lazy" alt="<?php esc_attr_e( 'car', 'vroomqc' ); ?>">
-							</div>
-							<div class="products__info">
-								<h3 class="products__model">
-									<?php esc_html_e( '2022 Volkswagen Tiguan', 'vroomqc' ); ?>
-								</h3>
-								<div class="products__details">
-									<span class="products__mileage">
-										<?php esc_html_e( '49,972 km', 'vroomqc' ); ?>
-									</span>
-									<span class="products__gearbox">
-										<?php esc_html_e( 'Manual', 'vroomqc' ); ?>
-									</span>
-								</div>
-							</div>
-							<div class="products__footer">
-								<div class="products__price">
-									<span class="products__last-price">$37,000</span>
-									<span class="products__current-price">$30,990</span>
-								</div>
-								<div class="products__offer">
-									<?php esc_html_e( 'or', 'vroomqc' ); ?> <span class="products__option">$208/<?php esc_html_e( 'biweekly', 'vroomqc' ); ?></span> <?php esc_html_e( '$0 cash down', 'vroomqc' ); ?>
-								</div>
-							</div>
-						</a>
-						<a href="#" class="products__item _show" data-filter-content="awd,new">
-							<div class="products__image ibg">
-								<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/homepage/top-picks/top-picks_image_03.jpg' ); ?>" loading="lazy" alt="<?php esc_attr_e( 'car', 'vroomqc' ); ?>">
-							</div>
-							<div class="products__info">
-								<h3 class="products__model">
-									<?php esc_html_e( '2023 Toyota RAV4', 'vroomqc' ); ?>
-								</h3>
-								<div class="products__details">
-									<span class="products__mileage">
-										<?php esc_html_e( '63,205 km', 'vroomqc' ); ?>
-									</span>
-									<span class="products__gearbox">
-										<?php esc_html_e( 'Automatic', 'vroomqc' ); ?>
-									</span>
-								</div>
-							</div>
-							<div class="products__footer">
-								<div class="products__price">
-									<span class="products__value">$33,990</span>
-								</div>
-								<div class="products__offer">
-									<?php esc_html_e( 'or', 'vroomqc' ); ?> <span class="products__option">$227/<?php esc_html_e( 'biweekly', 'vroomqc' ); ?></span> <?php esc_html_e( '$0 cash down', 'vroomqc' ); ?>
-								</div>
-							</div>
-						</a>
-						<a href="#" class="products__item _show" data-filter-content="fuel-efficient,more">
-							<div class="products__image ibg">
-								<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/homepage/top-picks/top-picks_image_04.jpg' ); ?>" loading="lazy" alt="<?php esc_attr_e( 'car', 'vroomqc' ); ?>">
-							</div>
-							<div class="products__info">
-								<h3 class="products__model">
-									<?php esc_html_e( '2022 Hyundai Santa Fe', 'vroomqc' ); ?>
-								</h3>
-								<div class="products__details">
-									<span class="products__mileage">
-										<?php esc_html_e( '54,430 km', 'vroomqc' ); ?>
-									</span>
-									<span class="products__gearbox">
-										<?php esc_html_e( 'Manual', 'vroomqc' ); ?>
-									</span>
-								</div>
-							</div>
-							<div class="products__footer">
-								<div class="products__price">
-									<span class="products__value">$30,490</span>
-								</div>
-								<div class="products__offer">
-									<?php esc_html_e( 'or', 'vroomqc' ); ?> <span class="products__option">$205/<?php esc_html_e( 'biweekly', 'vroomqc' ); ?></span> <?php esc_html_e( '$0 cash down', 'vroomqc' ); ?>
-								</div>
-							</div>
-						</a>
-						<a href="#" class="products__item _show" data-filter-content="suv,sedan">
-							<div class="products__image ibg">
-								<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/homepage/top-picks/top-picks_image_05.jpg' ); ?>" loading="lazy" alt="<?php esc_attr_e( 'car', 'vroomqc' ); ?>">
-							</div>
-							<div class="products__info">
-								<h3 class="products__model">
-									<?php esc_html_e( '2022 Toyota RAV4', 'vroomqc' ); ?>
-								</h3>
-								<div class="products__details">
-									<span class="products__mileage">
-										<?php esc_html_e( '40,676 km', 'vroomqc' ); ?>
-									</span>
-									<span class="products__gearbox">
-										<?php esc_html_e( 'Manual', 'vroomqc' ); ?>
-									</span>
-								</div>
-							</div>
-							<div class="products__footer">
-								<div class="products__price">
-									<span class="products__value">$35,990</span>
-								</div>
-								<div class="products__offer">
-									<?php esc_html_e( 'or', 'vroomqc' ); ?> <span class="products__option">$240/<?php esc_html_e( 'biweekly', 'vroomqc' ); ?></span> <?php esc_html_e( '$0 cash down', 'vroomqc' ); ?>
-								</div>
-							</div>
-						</a>
-						<a href="#" class="products__item _show" data-filter-content="awd,new">
-							<div class="products__image ibg">
-								<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/homepage/top-picks/top-picks_image_06.jpg' ); ?>" loading="lazy" alt="<?php esc_attr_e( 'car', 'vroomqc' ); ?>">
-							</div>
-							<div class="products__info">
-								<h3 class="products__model">
-									<?php esc_html_e( '2023 Nissan Rogue', 'vroomqc' ); ?>
-								</h3>
-								<div class="products__details">
-									<span class="products__mileage">
-										<?php esc_html_e( '6,645 km', 'vroomqc' ); ?>
-									</span>
-									<span class="products__gearbox">
-										<?php esc_html_e( 'Automatic', 'vroomqc' ); ?>
-									</span>
-								</div>
-							</div>
-							<div class="products__footer">
-								<div class="products__price">
-									<span class="products__value">$33,490</span>
-								</div>
-								<div class="products__offer">
-									<?php esc_html_e( 'or', 'vroomqc' ); ?> <span class="products__option">$224/<?php esc_html_e( 'biweekly', 'vroomqc' ); ?></span> <?php esc_html_e( '$0 cash down', 'vroomqc' ); ?>
-								</div>
-							</div>
-						</a>
+						<?php
+						// Query for featured vehicles (not sold)
+						$featured_vehicles = new WP_Query( array(
+							'post_type' => 'vehicle',
+							'posts_per_page' => 6,
+							'meta_query' => array(
+								array(
+									'key' => 'vendu',
+									'value' => '0',
+									'compare' => '='
+								)
+							),
+							'orderby' => 'date',
+							'order' => 'DESC'
+						) );
+
+						if ( $featured_vehicles->have_posts() ) :
+							$filter_options = array( 'suv', 'hybrid,up-to-15k', 'awd,new', 'fuel-efficient,more', 'suv,sedan', 'awd,new' );
+							$index = 0;
+							
+							while ( $featured_vehicles->have_posts() ) : $featured_vehicles->the_post();
+								$filter_content = isset( $filter_options[ $index ] ) ? $filter_options[ $index ] : '';
+								
+								set_query_var( 'vehicle_id', get_the_ID() );
+								set_query_var( 'filter_content', $filter_content );
+								get_template_part( 'template-parts/vehicle/card-small' );
+								
+								$index++;
+							endwhile;
+							wp_reset_postdata();
+						else :
+							// Fallback: Show message if no vehicles found
+							echo '<p class="no-vehicles-message">' . esc_html__( 'No vehicles available at the moment.', 'vroomqc' ) . '</p>';
+						endif;
+						?>
 					</div>
 				</div>
 			</div>
