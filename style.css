@@ -1,0 +1,45 @@
+/*!
+Theme Name: Vroom Quebec
+Theme URI: http://underscores.me/
+Author: Yasser Soliman
+Author URI: https://yassersoliman.com/
+Description: Vroom Quebec is a theme for the Vroom Quebec website.
+Version: 1.0.0
+Tested up to: 5.4
+Requires PHP: 5.6
+License: GNU General Public License v2 or later
+License URI: LICENSE
+Text Domain: vroomqc
+Tags: custom-background, custom-logo, custom-menu, featured-images, threaded-comments, translation-ready
+
+This theme, like WordPress, is licensed under the GPL.
+Use it to make something cool, have fun, and share what you've learned.
+
+vroomqc is based on Underscores https://underscores.me/, (C) 2012-2020 Automattic, Inc.
+Underscores is distributed under the terms of the GNU GPL v2 or later.
+
+Normalizing styles have been helped along thanks to the fine work of
+Nicolas Gallagher and Jonathan Neal https://necolas.github.io/normalize.css/
+*/
+
+/*--------------------------------------------------------------
+All styling is handled via Vite compilation and WordPress enqueuing.
+
+Compiled styles are automatically loaded based on development/production mode:
+- Development: http://localhost:5173/assets/src/scss/style.scss (hot reload)
+- Production: /assets/dist/css/style-[hash].css (optimized build)
+
+Style source files:
+- assets/src/scss/style.scss (main entry point)
+- assets/src/scss/_variables.scss (CSS custom properties)
+- assets/src/scss/_mixins.scss (SCSS mixins and functions)
+- assets/src/scss/_main-styles.scss (all custom theme styles)
+
+Library styles included:
+- lightgallery.min.css (image gallery functionality)
+- nouislider.min.css (range slider component)
+- swiper-bundle.min.css (carousel/slider component)
+
+No styles should be added to this file. All customizations should be made
+in the SCSS source files and compiled via npm run build.
+--------------------------------------------------------------*/

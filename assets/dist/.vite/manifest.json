@@ -1,0 +1,36 @@
+{
+  "assets/images/homepage/about/back.svg": {
+    "file": "images/back-BQ2fnwI4.svg",
+    "src": "assets/images/homepage/about/back.svg"
+  },
+  "assets/src/js/main.js": {
+    "file": "js/main-dw4yuSi0.js",
+    "name": "main",
+    "src": "assets/src/js/main.js",
+    "isEntry": true,
+    "dynamicImports": [
+      "node_modules/nouislider/dist/nouislider.mjs"
+    ],
+    "css": [
+      "css/main-BMD19QWe.css"
+    ]
+  },
+  "assets/src/scss/style.scss": {
+    "file": "css/style-CACO65_L.css",
+    "src": "assets/src/scss/style.scss",
+    "isEntry": true,
+    "names": [
+      "style.css"
+    ]
+  },
+  "node_modules/nouislider/dist/nouislider.css": {
+    "file": "css/nouislider-DxSIxjtm.css",
+    "src": "node_modules/nouislider/dist/nouislider.css"
+  },
+  "node_modules/nouislider/dist/nouislider.mjs": {
+    "file": "js/nouislider--vCYtMW8.js",
+    "name": "nouislider",
+    "src": "node_modules/nouislider/dist/nouislider.mjs",
+    "isDynamicEntry": true
+  }
+}
