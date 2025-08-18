@@ -177,6 +177,7 @@ get_header();
 						$featured_vehicles = new WP_Query( array(
 							'post_type' => 'vehicle',
 							'posts_per_page' => 6,
+							'post_status' => 'publish',
 							'meta_query' => array(
 								array(
 									'key' => 'vendu',

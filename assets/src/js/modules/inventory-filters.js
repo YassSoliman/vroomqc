@@ -905,9 +905,6 @@ export class InventoryFilters {
         this.updateVehicleCount(data);
         
         // Update taxonomy counts
-        if (data.taxonomy_counts) {
-            this.updateTaxonomyCounts(data.taxonomy_counts);
-        }
         
         // No longer needed - old make group logic removed
     }
@@ -926,92 +923,6 @@ export class InventoryFilters {
         }
     }
 
-    updateTaxonomyCounts(taxonomyCounts) {
-        console.log('📊 Updating counts. Current filters:', this.currentFilters);
-        
-        Object.entries(taxonomyCounts).forEach(([taxonomy, counts]) => {
-            // ALWAYS skip updating make/model counts - they should never change after initial load
-            if (taxonomy === 'make' || taxonomy === 'model') {
-                console.log(`⏭️ Skipping ${taxonomy} count update - preserving initial counts`);
-                return;
-            }
-            
-            console.log(`✅ Updating ${taxonomy} counts:`, counts);
-            
-            Object.entries(counts).forEach(([slug, count]) => {
-                // Find the checkbox for this taxonomy term
-                const checkbox = document.querySelector(`input[data-filter-taxonomy="${taxonomy}"][value="${slug}"]`);
-                if (checkbox) {
-                    const label = checkbox.closest('.body-products-aside__row')?.querySelector('.body-products-aside__caption');
-                    if (label) {
-                        // Update or add the count span
-                        let countSpan = label.querySelector('.filter-count');
-                        if (!countSpan) {
-                            countSpan = document.createElement('span');
-                            countSpan.className = 'filter-count';
-                            label.appendChild(countSpan);
-                        }
-                        
-                        const oldCount = countSpan.textContent;
-                        countSpan.textContent = ` (${count})`;
-                        console.log(`📈 Updated ${taxonomy} ${slug}: ${oldCount} → (${count})`);
-                        
-                        // Hide/show row based on count and taxonomy type
-                        const row = checkbox.closest('.body-products-aside__row');
-                        
-                        if (taxonomy === 'model') {
-                            // For model taxonomy - hide zero-count models
-                            if (count === 0) {
-                                row.style.display = 'none';
-                            } else {
-                                // Check search filter and make group visibility
-                                const rowsContainer = document.querySelector(`[data-filter-rows="${taxonomy}"]`);
-                                const searchInput = rowsContainer?.closest('.body-products-aside__item')?.querySelector(`[data-filter-search="${taxonomy}"]`);
-                                const currentSearchTerm = searchInput?.value?.toLowerCase() || '';
-                                
-                                let shouldShow = true;
-                                
-                                // Check search filter
-                                if (currentSearchTerm !== '') {
-                                    const labelText = label.textContent.toLowerCase();
-                                    shouldShow = labelText.includes(currentSearchTerm);
-                                }
-                                
-                                // No longer checking old make group structure
-                                
-                                row.style.display = shouldShow ? '' : 'none';
-                            }
-                        } else {
-                            // For other taxonomies - show all but disable zero-count (except for make)
-                            const rowsContainer = document.querySelector(`[data-filter-rows="${taxonomy}"]`);
-                            const searchInput = rowsContainer?.closest('.body-products-aside__item')?.querySelector(`[data-filter-search="${taxonomy}"]`);
-                            const currentSearchTerm = searchInput?.value?.toLowerCase() || '';
-                            
-                            // Enable/disable checkbox based on count (but never disable make checkboxes)
-                            const isDisabled = count === 0 && taxonomy !== 'make';
-                            checkbox.disabled = isDisabled;
-                            if (isDisabled) {
-                                row.classList.add('body-products-aside__row--disabled');
-                            } else {
-                                row.classList.remove('body-products-aside__row--disabled');
-                            }
-                            
-                            // Check search filter
-                            if (currentSearchTerm !== '') {
-                                const labelText = label.textContent.toLowerCase();
-                                const matches = labelText.includes(currentSearchTerm);
-                                row.style.display = matches ? '' : 'none';
-                            } else {
-                                row.style.display = '';
-                            }
-                        }
-                    }
-                }
-            });
-        });
-        
-        // No longer needed - old make group logic removed
-    }
 
     updateFilterPills() {
         const pillsContainer = document.querySelector('#filter-pills .filter-pills__container');

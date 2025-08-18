@@ -2560,17 +2560,6 @@ input {
 .body-products-aside__search-toggle:hover {
   background-color: rgba(0, 0, 0, 0.1);
 }
-.body-products-aside__row--disabled {
-  opacity: 0.5;
-  pointer-events: none;
-}
-.body-products-aside__row--disabled .body-products-aside__checkbox {
-  cursor: not-allowed;
-}
-.body-products-aside__row--disabled .body-products-aside__caption {
-  color: #999;
-  cursor: not-allowed;
-}
 .body-products-aside__make-group {
   margin-bottom: 0.75rem;
 }

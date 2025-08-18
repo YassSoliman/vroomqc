@@ -104,6 +104,7 @@ get_header();
 								$unsold_count = get_posts( array(
 									'post_type' => 'vehicle',
 									'posts_per_page' => -1,
+									'post_status' => 'publish',
 									'meta_query' => array(
 										array(
 											'key' => 'vendu',
@@ -179,6 +180,7 @@ get_header();
 								'post_type' => 'vehicle',
 								'posts_per_page' => 15,
 								'paged' => $paged,
+								'post_status' => 'publish',
 								'meta_query' => array(
 									array(
 										'key' => 'vendu',

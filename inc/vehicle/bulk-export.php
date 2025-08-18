@@ -44,6 +44,7 @@ add_action( 'admin_post_export_unsold_vehicles_csv', function() {
     $args = array(
         'post_type' => 'vehicle',
         'posts_per_page' => -1,
+        'post_status' => 'publish',
         'meta_query' => array(
             array(
                 'key' => 'vendu',

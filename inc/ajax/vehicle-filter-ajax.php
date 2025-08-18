@@ -171,6 +171,7 @@ function vroomqc_get_filtered_vehicles( $page = 1, $search = '', $sort = 'newest
                     $vehicles_with_model = get_posts( array(
                         'post_type' => 'vehicle',
                         'posts_per_page' => 1,
+                        'post_status' => 'publish',
                         'fields' => 'ids',
                         'tax_query' => array(
                             array(
@@ -360,7 +361,6 @@ function vroomqc_get_filtered_vehicles( $page = 1, $search = '', $sort = 'newest
         'pagination' => vroomqc_generate_pagination( $page, $total_pages ),
         'total_vehicles' => $total_vehicles,
         'showing_from' => $showing_from,
-        'taxonomy_counts' => vroomqc_get_taxonomy_counts( $filters ),
         'showing_to' => $showing_to,
         'current_page' => $page,
         'total_pages' => $total_pages
@@ -423,142 +423,6 @@ function vroomqc_generate_pagination( $current_page, $total_pages ) {
     return $pagination;
 }
 
-/**
- * Get taxonomy counts based on current filters
- */
-function vroomqc_get_taxonomy_counts( $filters = array() ) {
-    $taxonomies = array( 'make', 'model', 'body-style', 'transmission', 'drivetrain', 'fuel-type', 'cylinder', 'trim', 'exterior-color', 'interior-color' );
-    $counts = array();
-    
-    foreach ( $taxonomies as $taxonomy ) {
-        $counts[ $taxonomy ] = array();
-        
-        // Get all terms for this taxonomy
-        $terms = get_terms( array(
-            'taxonomy' => $taxonomy,
-            'hide_empty' => true
-        ) );
-        
-        if ( ! is_wp_error( $terms ) && ! empty( $terms ) ) {
-            foreach ( $terms as $term ) {
-                // Build query args for counting this specific term
-                $query_filters = $filters;
-                
-                if ( in_array( $taxonomy, array( 'make', 'model' ) ) ) {
-                    // For make and model: remove entire taxonomy from filters to avoid self-filtering
-                    if ( isset( $query_filters[ $taxonomy ] ) ) {
-                        unset( $query_filters[ $taxonomy ] );
-                    }
-                    // Don't add any terms back - we want total count for this specific term
-                } else {
-                    // For other taxonomies: replace all selected terms with current term
-                    $query_filters[ $taxonomy ] = array( $term->slug );
-                }
-                
-                $args = array(
-                    'post_type' => 'vehicle',
-                    'posts_per_page' => -1,
-                    'fields' => 'ids',
-                    'meta_query' => array(
-                        array(
-                            'key' => 'vendu',
-                            'value' => '0',
-                            'compare' => '='
-                        )
-                    )
-                );
-                
-                // Apply taxonomy filters - simple logic for counting individual terms
-                $tax_query = array();
-                $taxonomies_list = array( 'make', 'model', 'body-style', 'transmission', 'drivetrain', 'fuel-type', 'cylinder', 'trim', 'exterior-color', 'interior-color' );
-                
-                // First, add the current term being counted
-                $tax_query[] = array(
-                    'taxonomy' => $taxonomy,
-                    'field' => 'slug',
-                    'terms' => array( $term->slug ),
-                    'operator' => 'IN'
-                );
-                
-                // Then add other taxonomy filters (but not the same taxonomy)
-                foreach ( $query_filters as $filter_key => $filter_values ) {
-                    if ( in_array( $filter_key, $taxonomies_list ) && is_array( $filter_values ) && ! empty( $filter_values ) ) {
-                        $tax_query[] = array(
-                            'taxonomy' => $filter_key,
-                            'field' => 'slug',
-                            'terms' => $filter_values,
-                            'operator' => 'IN'
-                        );
-                    }
-                }
-                
-                if ( ! empty( $tax_query ) ) {
-                    $args['tax_query'] = $tax_query;
-                    if ( count( $tax_query ) > 1 ) {
-                        $args['tax_query']['relation'] = 'AND';
-                    }
-                }
-                
-                // Apply range filters
-                // Price range filter
-                if ( isset( $query_filters['price_min'] ) || isset( $query_filters['price_max'] ) ) {
-                    $price_query = array(
-                        'key' => 'price',
-                        'type' => 'NUMERIC',
-                        'compare' => 'BETWEEN'
-                    );
-                    
-                    $min = isset( $query_filters['price_min'] ) ? intval( $query_filters['price_min'] ) : 0;
-                    $max = isset( $query_filters['price_max'] ) ? intval( $query_filters['price_max'] ) : 999999;
-                    
-                    $price_query['value'] = array( $min, $max );
-                    $args['meta_query'][] = $price_query;
-                    $args['meta_query']['relation'] = 'AND';
-                }
-                
-                // Mileage range filter
-                if ( isset( $query_filters['mileage_min'] ) || isset( $query_filters['mileage_max'] ) ) {
-                    $mileage_query = array(
-                        'key' => 'mileage',
-                        'type' => 'NUMERIC',
-                        'compare' => 'BETWEEN'
-                    );
-                    
-                    $min = isset( $query_filters['mileage_min'] ) ? intval( $query_filters['mileage_min'] ) : 0;
-                    $max = isset( $query_filters['mileage_max'] ) ? intval( $query_filters['mileage_max'] ) : 999999;
-                    
-                    $mileage_query['value'] = array( $min, $max );
-                    $args['meta_query'][] = $mileage_query;
-                    $args['meta_query']['relation'] = 'AND';
-                }
-                
-                // Year range filter
-                if ( isset( $query_filters['year_min'] ) || isset( $query_filters['year_max'] ) ) {
-                    $year_query = array(
-                        'key' => 'year',
-                        'type' => 'NUMERIC',
-                        'compare' => 'BETWEEN'
-                    );
-                    
-                    $min = isset( $query_filters['year_min'] ) ? intval( $query_filters['year_min'] ) : 1900;
-                    $max = isset( $query_filters['year_max'] ) ? intval( $query_filters['year_max'] ) : date('Y') + 1;
-                    
-                    $year_query['value'] = array( $min, $max );
-                    $args['meta_query'][] = $year_query;
-                    $args['meta_query']['relation'] = 'AND';
-                }
-                
-                $query = new WP_Query( $args );
-                $counts[ $taxonomy ][ $term->slug ] = $query->found_posts;
-                
-                
-                wp_reset_postdata();
-            }
-        }
-    }
-    
-    return $counts;
-}
 
 /**
  * Get dynamic filter data
@@ -683,6 +547,7 @@ function vroomqc_get_taxonomy_options() {
                 $vehicle_count = get_posts( array(
                     'post_type' => 'vehicle',
                     'posts_per_page' => -1,
+                    'post_status' => 'publish',
                     'tax_query' => array(
                         array(
                             'taxonomy' => $taxonomy,

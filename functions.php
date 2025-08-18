@@ -502,9 +502,6 @@ function vroomqc_render_taxonomy_filter( $taxonomy_slug, $label, $show_search = 
 		echo '<input type="checkbox" id="' . esc_attr( $checkbox_id ) . '" class="body-products-aside__checkbox" data-filter-taxonomy="' . esc_attr( $taxonomy_slug ) . '" value="' . esc_attr( $term->slug ) . '"' . $disabled_attr . '>';
 		echo '<label for="' . esc_attr( $checkbox_id ) . '" class="body-products-aside__caption">';
 		echo esc_html( $term->name );
-		if ( isset( $term->vehicle_count ) ) {
-			echo ' <span class="filter-count">(' . $term->vehicle_count . ')</span>';
-		}
 		echo '</label>';
 		echo '</div>';
 	}
@@ -648,6 +645,7 @@ function vroomqc_render_make_model_filter( $show_search = false ) {
 	$vehicles = get_posts( array(
 		'post_type' => 'vehicle',
 		'posts_per_page' => -1,
+		'post_status' => 'publish',
 		'meta_query' => array(
 			array(
 				'key' => 'vendu',
@@ -662,22 +660,15 @@ function vroomqc_render_make_model_filter( $show_search = false ) {
 		return;
 	}
 	
-	// Build make-model relationships and make counts
+	// Build make-model relationships
 	$make_model_map = array();
-	$make_counts = array();
 	
 	foreach ( $vehicles as $vehicle_id ) {
 		$makes = get_the_terms( $vehicle_id, 'make' );
 		$models = get_the_terms( $vehicle_id, 'model' );
 		
 		if ( ! is_wp_error( $makes ) && ! empty( $makes ) ) {
-			// Count makes
 			foreach ( $makes as $make ) {
-				if ( ! isset( $make_counts[ $make->slug ] ) ) {
-					$make_counts[ $make->slug ] = 0;
-				}
-				$make_counts[ $make->slug ]++;
-				
 				// Initialize make in map if not exists
 				if ( ! isset( $make_model_map[ $make->slug ] ) ) {
 					$make_model_map[ $make->slug ] = array(
@@ -696,13 +687,9 @@ function vroomqc_render_make_model_filter( $show_search = false ) {
 					// Add model to this make if not already added
 					if ( ! isset( $make_model_map[ $make->slug ]['models'][ $model->slug ] ) ) {
 						$make_model_map[ $make->slug ]['models'][ $model->slug ] = array(
-							'name' => $model->name,
-							'count' => 0
+							'name' => $model->name
 						);
 					}
-					
-					// Increment count
-					$make_model_map[ $make->slug ]['models'][ $model->slug ]['count']++;
 				}
 			}
 		}
@@ -741,14 +728,12 @@ function vroomqc_render_make_model_filter( $show_search = false ) {
 	
 	foreach ( $make_model_map as $make_slug => $make_data ) {
 		$make_checkbox_id = 'make-' . $make_slug;
-		$make_count = isset( $make_counts[ $make_slug ] ) ? $make_counts[ $make_slug ] : 0;
 		
 		// Make checkbox
 		echo '<div class="body-products-aside__row body-products-aside__row--make" data-make-slug="' . esc_attr( $make_slug ) . '">';
 		echo '<input type="checkbox" id="' . esc_attr( $make_checkbox_id ) . '" class="body-products-aside__checkbox" data-filter-taxonomy="make" data-make-parent="' . esc_attr( $make_slug ) . '" value="' . esc_attr( $make_slug ) . '">';
 		echo '<label for="' . esc_attr( $make_checkbox_id ) . '" class="body-products-aside__caption">';
 		echo esc_html( $make_data['name'] );
-		echo ' <span class="filter-count">(' . $make_count . ')</span>';
 		echo '</label>';
 		echo '</div>';
 		
@@ -763,13 +748,11 @@ function vroomqc_render_make_model_filter( $show_search = false ) {
 		
 		foreach ( $sorted_models as $model_slug => $model_data ) {
 			$model_checkbox_id = 'model-' . $model_slug;
-			$count = $model_data['count'];
 			
 			echo '<div class="body-products-aside__row body-products-aside__row--model" data-model-make="' . esc_attr( $make_slug ) . '">';
 			echo '<input type="checkbox" id="' . esc_attr( $model_checkbox_id ) . '" class="body-products-aside__checkbox" data-filter-taxonomy="model" data-model-parent="' . esc_attr( $make_slug ) . '" value="' . esc_attr( $model_slug ) . '">';
 			echo '<label for="' . esc_attr( $model_checkbox_id ) . '" class="body-products-aside__caption">';
 			echo esc_html( $model_data['name'] );
-			echo ' <span class="filter-count">(' . $count . ')</span>';
 			echo '</label>';
 			echo '</div>';
 		}
