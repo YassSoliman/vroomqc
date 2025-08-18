@@ -74,7 +74,19 @@ export class InventoryFilters {
         // Checkbox filters
         document.addEventListener('change', (e) => {
             if (e.target.matches('[data-filter-taxonomy]')) {
+                // If unchecking a make, clean up its models from filters FIRST
+                if (e.target.dataset.filterTaxonomy === 'make' && !e.target.checked) {
+                    const makeSlug = e.target.value;
+                    this.removeModelsFromFilters(makeSlug);
+                }
+                
+                // Then handle the filter change (which calls applyFilters)
                 this.handleTaxonomyFilter(e.target);
+                
+                // Then handle UI updates for make/model interactions
+                if (e.target.dataset.filterTaxonomy === 'make') {
+                    this.handleMakeCheckboxChange(e.target);
+                }
             }
         });
 
@@ -592,10 +604,7 @@ export class InventoryFilters {
                         }
                     });
                     
-                    // Update make group visibility for model taxonomy
-                    if (taxonomy === 'model') {
-                        this.updateMakeGroupVisibility();
-                    }
+                    // No longer needed - old make group logic removed
                     
                     console.log('👁️ Showing', visibleCount, 'items');
                 }
@@ -674,6 +683,130 @@ export class InventoryFilters {
 
         this.currentPage = 1;
         this.applyFilters();
+    }
+
+    handleMakeCheckboxChange(makeCheckbox) {
+        const makeSlug = makeCheckbox.dataset.makeParent || makeCheckbox.value;
+        const isChecked = makeCheckbox.checked;
+        
+        console.log('🏭 Make checkbox changed:', { makeSlug, isChecked });
+        
+        // Find the models container for this make
+        const modelsContainer = document.querySelector(`[data-make-models="${makeSlug}"]`);
+        
+        if (modelsContainer) {
+            if (isChecked) {
+                // Show models with animation
+                this.expandModelsContainer(modelsContainer);
+            } else {
+                // Hide models and uncheck all model checkboxes for this make
+                this.collapseModelsContainer(modelsContainer);
+                this.uncheckMakeModels(makeSlug);
+            }
+        }
+    }
+
+    expandModelsContainer(container) {
+        // Show the container
+        container.style.display = 'block';
+        
+        // Force reflow to ensure display change is applied
+        container.offsetHeight;
+        
+        // Add expanded class for animation
+        container.classList.add('expanded');
+        
+        console.log('📈 Expanded models container');
+    }
+
+    collapseModelsContainer(container) {
+        // Remove expanded class for animation
+        container.classList.remove('expanded');
+        
+        // Hide after animation completes
+        setTimeout(() => {
+            if (!container.classList.contains('expanded')) {
+                container.style.display = 'none';
+            }
+        }, 300); // Match CSS transition duration
+        
+        console.log('📉 Collapsed models container');
+    }
+
+    uncheckMakeModels(makeSlug) {
+        // Find all model checkboxes for this make and uncheck them
+        const modelCheckboxes = document.querySelectorAll(`[data-filter-taxonomy="model"][data-model-parent="${makeSlug}"]`);
+        
+        modelCheckboxes.forEach(checkbox => {
+            if (checkbox.checked) {
+                checkbox.checked = false;
+                
+                // Remove from filters
+                if (this.currentFilters.model) {
+                    this.currentFilters.model = this.currentFilters.model.filter(v => v !== checkbox.value);
+                    if (this.currentFilters.model.length === 0) {
+                        delete this.currentFilters.model;
+                    }
+                }
+            }
+        });
+        
+        console.log('🚗 Unchecked models for make:', makeSlug);
+    }
+
+    removeModelsFromFilters(makeSlug) {
+        // Remove all models for this make from currentFilters
+        if (this.currentFilters.model) {
+            // Find all model checkboxes for this make to get their values
+            const modelCheckboxes = document.querySelectorAll(`[data-filter-taxonomy="model"][data-model-parent="${makeSlug}"]`);
+            const modelSlugsToRemove = Array.from(modelCheckboxes).map(cb => cb.value);
+            
+            // Remove these model slugs from current filters
+            this.currentFilters.model = this.currentFilters.model.filter(modelSlug => 
+                !modelSlugsToRemove.includes(modelSlug)
+            );
+            
+            // Clean up empty model filter array
+            if (this.currentFilters.model.length === 0) {
+                delete this.currentFilters.model;
+            }
+            
+            console.log('🧹 Removed models from filters for make:', makeSlug, 'Models removed:', modelSlugsToRemove);
+        }
+    }
+
+    removeMakeAndModels(makeSlug) {
+        console.log('🗑️ Removing make and its models:', makeSlug);
+        
+        // Collapse the models container
+        const modelsContainer = document.querySelector(`[data-make-models="${makeSlug}"]`);
+        if (modelsContainer) {
+            this.collapseModelsContainer(modelsContainer);
+        }
+        
+        // Remove all model filters for this make
+        if (this.currentFilters.model) {
+            // Get all model checkboxes for this make
+            const modelCheckboxes = document.querySelectorAll(`[data-filter-taxonomy="model"][data-model-parent="${makeSlug}"]`);
+            const modelSlugsToRemove = Array.from(modelCheckboxes).map(cb => cb.value);
+            
+            // Remove these model slugs from current filters
+            this.currentFilters.model = this.currentFilters.model.filter(modelSlug => 
+                !modelSlugsToRemove.includes(modelSlug)
+            );
+            
+            // Clean up empty model filter array
+            if (this.currentFilters.model.length === 0) {
+                delete this.currentFilters.model;
+            }
+            
+            // Uncheck all model checkboxes for this make
+            modelCheckboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+        }
+        
+        console.log('🧹 Cleaned up make and models:', makeSlug);
     }
 
     applyFilters() {
@@ -776,8 +909,7 @@ export class InventoryFilters {
             this.updateTaxonomyCounts(data.taxonomy_counts);
         }
         
-        // Update make group visibility
-        this.updateMakeGroupVisibility();
+        // No longer needed - old make group logic removed
     }
 
     updateVehicleCount(data) {
@@ -795,9 +927,17 @@ export class InventoryFilters {
     }
 
     updateTaxonomyCounts(taxonomyCounts) {
-        console.log('🔢 Updating taxonomy counts:', taxonomyCounts);
+        console.log('📊 Updating counts. Current filters:', this.currentFilters);
         
         Object.entries(taxonomyCounts).forEach(([taxonomy, counts]) => {
+            // ALWAYS skip updating make/model counts - they should never change after initial load
+            if (taxonomy === 'make' || taxonomy === 'model') {
+                console.log(`⏭️ Skipping ${taxonomy} count update - preserving initial counts`);
+                return;
+            }
+            
+            console.log(`✅ Updating ${taxonomy} counts:`, counts);
+            
             Object.entries(counts).forEach(([slug, count]) => {
                 // Find the checkbox for this taxonomy term
                 const checkbox = document.querySelector(`input[data-filter-taxonomy="${taxonomy}"][value="${slug}"]`);
@@ -811,7 +951,10 @@ export class InventoryFilters {
                             countSpan.className = 'filter-count';
                             label.appendChild(countSpan);
                         }
+                        
+                        const oldCount = countSpan.textContent;
                         countSpan.textContent = ` (${count})`;
+                        console.log(`📈 Updated ${taxonomy} ${slug}: ${oldCount} → (${count})`);
                         
                         // Hide/show row based on count and taxonomy type
                         const row = checkbox.closest('.body-products-aside__row');
@@ -834,25 +977,18 @@ export class InventoryFilters {
                                     shouldShow = labelText.includes(currentSearchTerm);
                                 }
                                 
-                                // Check make group visibility
-                                if (shouldShow) {
-                                    const makeGroup = row.closest('.body-products-aside__make-group');
-                                    if (makeGroup) {
-                                        const makeSlug = makeGroup.dataset.makeGroup;
-                                        shouldShow = this.shouldShowMakeGroup(makeSlug);
-                                    }
-                                }
+                                // No longer checking old make group structure
                                 
                                 row.style.display = shouldShow ? '' : 'none';
                             }
                         } else {
-                            // For other taxonomies - show all but disable zero-count
+                            // For other taxonomies - show all but disable zero-count (except for make)
                             const rowsContainer = document.querySelector(`[data-filter-rows="${taxonomy}"]`);
                             const searchInput = rowsContainer?.closest('.body-products-aside__item')?.querySelector(`[data-filter-search="${taxonomy}"]`);
                             const currentSearchTerm = searchInput?.value?.toLowerCase() || '';
                             
-                            // Enable/disable checkbox based on count
-                            const isDisabled = count === 0;
+                            // Enable/disable checkbox based on count (but never disable make checkboxes)
+                            const isDisabled = count === 0 && taxonomy !== 'make';
                             checkbox.disabled = isDisabled;
                             if (isDisabled) {
                                 row.classList.add('body-products-aside__row--disabled');
@@ -874,40 +1010,7 @@ export class InventoryFilters {
             });
         });
         
-        // Update make group visibility after taxonomy counts update
-        this.updateMakeGroupVisibility();
-    }
-
-    shouldShowMakeGroup(makeSlug) {
-        // If no make filters are active, show all groups
-        if (!this.currentFilters.make || this.currentFilters.make.length === 0) {
-            return true;
-        }
-        
-        // Show group only if this make is selected
-        return this.currentFilters.make.includes(makeSlug);
-    }
-
-    updateMakeGroupVisibility() {
-        const makeGroups = document.querySelectorAll('.body-products-aside__make-group');
-        
-        makeGroups.forEach(group => {
-            const makeSlug = group.dataset.makeGroup;
-            let shouldShow = this.shouldShowMakeGroup(makeSlug);
-            
-            // Also check if any models in this group are visible (for search functionality)
-            if (shouldShow) {
-                const modelsInGroup = group.querySelectorAll('.body-products-aside__row--model');
-                const visibleModels = Array.from(modelsInGroup).filter(model => {
-                    return model.style.display !== 'none';
-                });
-                
-                // Hide group if no models are visible
-                shouldShow = visibleModels.length > 0;
-            }
-            
-            group.style.display = shouldShow ? '' : 'none';
-        });
+        // No longer needed - old make group logic removed
     }
 
     updateFilterPills() {
@@ -1083,7 +1186,14 @@ export class InventoryFilters {
             
             // Uncheck corresponding checkbox
             const checkbox = document.querySelector(`[data-filter-taxonomy="${filterType}"][value="${filterValue}"]`);
-            if (checkbox) checkbox.checked = false;
+            if (checkbox) {
+                checkbox.checked = false;
+                
+                // Special handling for make removal - also remove associated models
+                if (filterType === 'make') {
+                    this.removeMakeAndModels(filterValue);
+                }
+            }
         }
 
         this.currentPage = 1;
@@ -1102,6 +1212,13 @@ export class InventoryFilters {
         // Uncheck all checkboxes
         document.querySelectorAll('[data-filter-taxonomy]:checked').forEach(checkbox => {
             checkbox.checked = false;
+        });
+
+        // Collapse all model containers
+        const modelContainers = document.querySelectorAll('.body-products-aside__models-container');
+        modelContainers.forEach(container => {
+            container.classList.remove('expanded');
+            container.style.display = 'none';
         });
 
         // Reset range sliders
@@ -1273,6 +1390,22 @@ export class InventoryFilters {
             const values = url.searchParams.get(taxonomy);
             if (values) {
                 this.currentFilters[taxonomy] = values.split(',');
+                
+                // Check corresponding checkboxes
+                values.split(',').forEach(value => {
+                    const checkbox = document.querySelector(`[data-filter-taxonomy="${taxonomy}"][value="${value}"]`);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                        
+                        // Special handling for make checkboxes - expand their models
+                        if (taxonomy === 'make') {
+                            const modelsContainer = document.querySelector(`[data-make-models="${value}"]`);
+                            if (modelsContainer) {
+                                this.expandModelsContainer(modelsContainer);
+                            }
+                        }
+                    }
+                });
             }
         });
 

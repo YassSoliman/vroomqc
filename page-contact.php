@@ -72,7 +72,7 @@ get_header();
 										<?php echo vroomqc_get_svg( 'icons/icons-sprite.svg#drop-down-icon' ); ?>
 									</span>
 								</button>
-								<ul class="select__body" data-select-menu-drop-down>
+								<ul class="select__body" data-select-menu-drop-down hidden>
 									<li class="select__item" data-select-menu-option>
 										<button type="button" class="select__button"><?php esc_html_e( 'General inquiry', 'vroomqc' ); ?></button>
 									</li>

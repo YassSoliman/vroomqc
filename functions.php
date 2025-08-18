@@ -641,6 +641,148 @@ function vroomqc_render_model_filter_grouped( $show_search = false ) {
 }
 
 /**
+ * Helper function to render merged make & model filter with nested checkboxes
+ */
+function vroomqc_render_make_model_filter( $show_search = false ) {
+	// Get all vehicles to discover make-model relationships
+	$vehicles = get_posts( array(
+		'post_type' => 'vehicle',
+		'posts_per_page' => -1,
+		'meta_query' => array(
+			array(
+				'key' => 'vendu',
+				'value' => '0',
+				'compare' => '='
+			)
+		),
+		'fields' => 'ids'
+	) );
+	
+	if ( empty( $vehicles ) ) {
+		return;
+	}
+	
+	// Build make-model relationships and make counts
+	$make_model_map = array();
+	$make_counts = array();
+	
+	foreach ( $vehicles as $vehicle_id ) {
+		$makes = get_the_terms( $vehicle_id, 'make' );
+		$models = get_the_terms( $vehicle_id, 'model' );
+		
+		if ( ! is_wp_error( $makes ) && ! empty( $makes ) ) {
+			// Count makes
+			foreach ( $makes as $make ) {
+				if ( ! isset( $make_counts[ $make->slug ] ) ) {
+					$make_counts[ $make->slug ] = 0;
+				}
+				$make_counts[ $make->slug ]++;
+				
+				// Initialize make in map if not exists
+				if ( ! isset( $make_model_map[ $make->slug ] ) ) {
+					$make_model_map[ $make->slug ] = array(
+						'name' => $make->name,
+						'models' => array()
+					);
+				}
+			}
+			
+			// Add models to their makes
+			if ( ! is_wp_error( $models ) && ! empty( $models ) ) {
+				// Use the first make for each model (in case of multiple makes)
+				$make = $makes[0];
+				
+				foreach ( $models as $model ) {
+					// Add model to this make if not already added
+					if ( ! isset( $make_model_map[ $make->slug ]['models'][ $model->slug ] ) ) {
+						$make_model_map[ $make->slug ]['models'][ $model->slug ] = array(
+							'name' => $model->name,
+							'count' => 0
+						);
+					}
+					
+					// Increment count
+					$make_model_map[ $make->slug ]['models'][ $model->slug ]['count']++;
+				}
+			}
+		}
+	}
+	
+	if ( empty( $make_model_map ) ) {
+		return;
+	}
+	
+	
+	// Sort makes alphabetically
+	ksort( $make_model_map );
+	
+	echo '<div class="body-products-aside__item">';
+	echo '<div class="body-products-aside__header-container">';
+	echo '<button type="button" class="body-products-aside__header" data-spoller>';
+	echo '<span class="body-products-aside__text-base">' . esc_html__( 'Make & Model', 'vroomqc' ) . '</span>';
+	echo '<span class="body-products-aside__icon">' . vroomqc_get_svg( 'icons/icons-sprite.svg#drop-down-icon' ) . '</span>';
+	echo '</button>';
+	if ( $show_search ) {
+		echo '<button type="button" class="body-products-aside__search-toggle" data-search-toggle="make-model" aria-label="' . esc_attr__( 'Search Make & Model', 'vroomqc' ) . '">';
+		echo '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>';
+		echo '</button>';
+	}
+	echo '</div>';
+	echo '<div class="body-products-aside__body">';
+	
+	// Add search input if enabled (hidden by default)
+	if ( $show_search ) {
+		echo '<div class="body-products-aside__search" data-search-container="make-model" style="display: none;">';
+		echo '<input type="text" class="body-products-aside__search-input" placeholder="' . esc_attr__( 'Search make or model...', 'vroomqc' ) . '" data-filter-search="make-model">';
+		echo '</div>';
+	}
+	
+	echo '<div class="body-products-aside__rows" data-filter-rows="make-model">';
+	
+	foreach ( $make_model_map as $make_slug => $make_data ) {
+		$make_checkbox_id = 'make-' . $make_slug;
+		$make_count = isset( $make_counts[ $make_slug ] ) ? $make_counts[ $make_slug ] : 0;
+		
+		// Make checkbox
+		echo '<div class="body-products-aside__row body-products-aside__row--make" data-make-slug="' . esc_attr( $make_slug ) . '">';
+		echo '<input type="checkbox" id="' . esc_attr( $make_checkbox_id ) . '" class="body-products-aside__checkbox" data-filter-taxonomy="make" data-make-parent="' . esc_attr( $make_slug ) . '" value="' . esc_attr( $make_slug ) . '">';
+		echo '<label for="' . esc_attr( $make_checkbox_id ) . '" class="body-products-aside__caption">';
+		echo esc_html( $make_data['name'] );
+		echo ' <span class="filter-count">(' . $make_count . ')</span>';
+		echo '</label>';
+		echo '</div>';
+		
+		// Models container (initially hidden)
+		echo '<div class="body-products-aside__models-container" data-make-models="' . esc_attr( $make_slug ) . '" style="display: none;">';
+		
+		// Sort models alphabetically
+		$sorted_models = $make_data['models'];
+		uasort( $sorted_models, function( $a, $b ) {
+			return strcasecmp( $a['name'], $b['name'] );
+		} );
+		
+		foreach ( $sorted_models as $model_slug => $model_data ) {
+			$model_checkbox_id = 'model-' . $model_slug;
+			$count = $model_data['count'];
+			
+			echo '<div class="body-products-aside__row body-products-aside__row--model" data-model-make="' . esc_attr( $make_slug ) . '">';
+			echo '<input type="checkbox" id="' . esc_attr( $model_checkbox_id ) . '" class="body-products-aside__checkbox" data-filter-taxonomy="model" data-model-parent="' . esc_attr( $make_slug ) . '" value="' . esc_attr( $model_slug ) . '">';
+			echo '<label for="' . esc_attr( $model_checkbox_id ) . '" class="body-products-aside__caption">';
+			echo esc_html( $model_data['name'] );
+			echo ' <span class="filter-count">(' . $count . ')</span>';
+			echo '</label>';
+			echo '</div>';
+		}
+		
+		echo '</div>';
+	}
+	
+	echo '</div>';
+	echo '</div>';
+	echo '</div>';
+}
+
+/**
  * Helper function to render mileage range filter
  */
 function vroomqc_render_mileage_filter() {

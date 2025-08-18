@@ -35,17 +35,14 @@
 						<div class="footer__select select" data-select-menu>
 							<h2 class="select__label"><?php esc_html_e( 'Language', 'vroomqc' ); ?></h2>
 							<button class="select__header" type="button" aria-label="<?php esc_attr_e( 'choose language', 'vroomqc' ); ?>" data-select-menu-button>
-								<span class="select__value" data-select-menu-value><?php esc_html_e( 'English', 'vroomqc' ); ?></span>
+								<span class="select__value" data-select-menu-value><?php esc_html_e( 'French', 'vroomqc' ); ?></span>
 								<span class="select__icon">
 									<?php echo vroomqc_get_svg( 'icons/icons-sprite.svg#drop-down-icon' ); ?>
 								</span>
 							</button>
-							<ul class="select__body" data-select-menu-drop-down>
+							<ul class="select__body" data-select-menu-drop-down hidden>
 								<li class="select__item" data-select-menu-option>
-									<a href="#" class="select__link"><span><?php esc_html_e( 'Ukrainian', 'vroomqc' ); ?></span></a>
-								</li>
-								<li class="select__item" data-select-menu-option>
-									<a href="#" class="select__link"><span><?php esc_html_e( 'Italian', 'vroomqc' ); ?></span></a>
+									<a href="#" class="select__link"><span><?php esc_html_e( 'English', 'vroomqc' ); ?></span></a>
 								</li>
 							</ul>
 						</div>

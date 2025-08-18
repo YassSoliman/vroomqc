@@ -242,11 +242,9 @@ input {
   transition: all 0.5s ease 0s;
 }
 .select__body {
-  display: none;
   position: absolute;
   top: calc(100% + 0.3125rem);
-  right: 0;
-  min-width: 100%;
+  min-width: 14rem;
   z-index: 1000;
   background: var(--color-white);
   border: 1px solid #dcdfea;
@@ -2594,6 +2592,36 @@ input {
 .body-products-aside__row--model:last-child {
   margin-bottom: 0.75rem;
 }
+
+/* Make & Model Filter Styles */
+.body-products-aside__row--make {
+  margin-bottom: 0.5rem;
+  position: relative;
+}
+
+.body-products-aside__models-container {
+  overflow: hidden;
+  transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+  max-height: 0;
+  opacity: 0;
+}
+
+.body-products-aside__models-container.expanded {
+  max-height: 1000px; /* Large enough to accommodate all models */
+  opacity: 1;
+}
+
+.body-products-aside__models-container .body-products-aside__row--model {
+  padding-left: 2rem;
+  margin-bottom: 0.25rem;
+  border-left: 2px solid #e5e5e5;
+  margin-left: 1rem;
+}
+
+.body-products-aside__models-container .body-products-aside__row--model:last-child {
+  margin-bottom: 0.5rem;
+}
+
 .body-products-aside__header {
   display: -webkit-box;
   display: -ms-flexbox;
@@ -4812,8 +4840,8 @@ input {
   margin-bottom: 0.5rem;
 }
 .footer__select .select__header {
-  padding: 0.75rem 1rem;
-  border-radius: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
   background: var(--secondary-color);
   color: var(--color-white);
   min-width: 14rem;
@@ -4841,12 +4869,12 @@ input {
   width: 0.75rem;
 }
 .footer__select .select__body {
-  padding: 0.75rem 0;
-  border-radius: 0.75rem 0.75rem;
+  padding: 0.5rem 0;
+  border-radius: 0.5rem;
   background: var(--secondary-color);
 }
 .footer__select .select__item {
-  padding: 0 1rem;
+  padding: 0 0.75rem;
   -webkit-transition: all 0.3s ease 0s;
   transition: all 0.3s ease 0s;
 }
@@ -4861,7 +4889,6 @@ input {
 .footer__select .select__link {
   display: block;
   color: var(--color-white);
-  padding: 0.4375rem 0;
 }
 .footer__label {
   font-weight: 500;

@@ -65,8 +65,7 @@ get_header();
 								</div>
 							</div>
 							<?php vroomqc_render_year_filter(); ?>
-							<?php vroomqc_render_taxonomy_filter( 'make', __( 'Make', 'vroomqc' ), true ); ?>
-							<?php vroomqc_render_model_filter_grouped( true ); ?>
+							<?php vroomqc_render_make_model_filter( true ); ?>
 							<?php vroomqc_render_taxonomy_filter( 'body-style', __( 'Body type', 'vroomqc' ) ); ?>
 							<?php vroomqc_render_mileage_filter(); ?>
 							<?php vroomqc_render_taxonomy_filter( 'transmission', __( 'Transmission', 'vroomqc' ) ); ?>
@@ -144,7 +143,7 @@ get_header();
 											<?php echo vroomqc_get_svg( 'icons/icons-sprite.svg#drop-down-icon' ); ?>
 										</span>
 									</button>
-									<ul class="select__body" data-select-menu-drop-down>
+									<ul class="select__body" data-select-menu-drop-down hidden>
 										<li class="select__item" data-select-menu-option data-sort-value="newest">
 											<button type="button" class="select__button"><?php esc_html_e( 'Newest listings', 'vroomqc' ); ?></button>
 										</li>

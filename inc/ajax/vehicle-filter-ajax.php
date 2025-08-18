@@ -148,10 +148,127 @@ function vroomqc_get_filtered_vehicles( $page = 1, $search = '', $sort = 'newest
             break;
     }
     
-    // Add taxonomy filters
+    // Add taxonomy filters with special handling for make/model relationship
     $tax_query = array();
-    $taxonomies = array( 'make', 'model', 'body-style', 'transmission', 'drivetrain', 'fuel-type', 'trim', 'cylinder', 'exterior-color', 'interior-color' );
+    $taxonomies = array( 'body-style', 'transmission', 'drivetrain', 'fuel-type', 'trim', 'cylinder', 'exterior-color', 'interior-color' );
     
+    // Handle make/model filters with nuanced logic for mixed selections
+    $make_filters = isset( $filters['make'] ) && ! empty( $filters['make'] ) ? $filters['make'] : array();
+    $model_filters = isset( $filters['model'] ) && ! empty( $filters['model'] ) ? $filters['model'] : array();
+    
+    if ( ! empty( $make_filters ) || ! empty( $model_filters ) ) {
+        if ( ! empty( $make_filters ) && ! empty( $model_filters ) ) {
+            // Complex case: Both makes and models selected
+            // Need to determine which makes have specific models and which don't
+            
+            // Get make-model relationships to understand which models belong to which makes
+            $make_model_relationships = array();
+            foreach ( $model_filters as $model_slug ) {
+                // Find which make this model belongs to
+                $model_term = get_term_by( 'slug', $model_slug, 'model' );
+                if ( $model_term ) {
+                    // Get vehicles with this model to find its make
+                    $vehicles_with_model = get_posts( array(
+                        'post_type' => 'vehicle',
+                        'posts_per_page' => 1,
+                        'fields' => 'ids',
+                        'tax_query' => array(
+                            array(
+                                'taxonomy' => 'model',
+                                'field' => 'slug',
+                                'terms' => $model_slug
+                            )
+                        ),
+                        'meta_query' => array(
+                            array(
+                                'key' => 'vendu',
+                                'value' => '0',
+                                'compare' => '='
+                            )
+                        )
+                    ) );
+                    
+                    if ( ! empty( $vehicles_with_model ) ) {
+                        $vehicle_makes = get_the_terms( $vehicles_with_model[0], 'make' );
+                        if ( ! is_wp_error( $vehicle_makes ) && ! empty( $vehicle_makes ) ) {
+                            $make_slug = $vehicle_makes[0]->slug;
+                            if ( ! isset( $make_model_relationships[ $make_slug ] ) ) {
+                                $make_model_relationships[ $make_slug ] = array();
+                            }
+                            $make_model_relationships[ $make_slug ][] = $model_slug;
+                        }
+                    }
+                }
+            }
+            
+            // Separate makes into those with specific models vs those without
+            $makes_with_specific_models = array_keys( $make_model_relationships );
+            $makes_without_specific_models = array_diff( $make_filters, $makes_with_specific_models );
+            
+            // Build OR query that handles both scenarios
+            $make_model_query = array();
+            
+            // Add makes without specific models (show ALL their vehicles)
+            if ( ! empty( $makes_without_specific_models ) ) {
+                $make_model_query[] = array(
+                    'taxonomy' => 'make',
+                    'field' => 'slug',
+                    'terms' => $makes_without_specific_models,
+                    'operator' => 'IN'
+                );
+            }
+            
+            // Add makes with specific models (show ONLY those models)
+            if ( ! empty( $makes_with_specific_models ) ) {
+                foreach ( $makes_with_specific_models as $make_slug ) {
+                    if ( in_array( $make_slug, $make_filters ) ) {
+                        // This make is selected AND has specific models selected
+                        $make_model_query[] = array(
+                            'relation' => 'AND',
+                            array(
+                                'taxonomy' => 'make',
+                                'field' => 'slug',
+                                'terms' => $make_slug,
+                                'operator' => 'IN'
+                            ),
+                            array(
+                                'taxonomy' => 'model',
+                                'field' => 'slug',
+                                'terms' => $make_model_relationships[ $make_slug ],
+                                'operator' => 'IN'
+                            )
+                        );
+                    }
+                }
+            }
+            
+            if ( ! empty( $make_model_query ) ) {
+                if ( count( $make_model_query ) > 1 ) {
+                    $make_model_query['relation'] = 'OR';
+                }
+                $tax_query[] = $make_model_query;
+            }
+            
+        } elseif ( ! empty( $make_filters ) ) {
+            // Only make selected - show all vehicles of those makes (no model restriction)
+            $tax_query[] = array(
+                'taxonomy' => 'make',
+                'field' => 'slug',
+                'terms' => is_array( $make_filters ) ? $make_filters : array( $make_filters ),
+                'operator' => 'IN'
+            );
+        } elseif ( ! empty( $model_filters ) ) {
+            // Only model selected - show vehicles with those models (regardless of make)
+            $tax_query[] = array(
+                'taxonomy' => 'model',
+                'field' => 'slug',
+                'terms' => is_array( $model_filters ) ? $model_filters : array( $model_filters ),
+                'operator' => 'IN'
+            );
+        }
+    }
+    
+    // Handle other taxonomy filters normally
     foreach ( $taxonomies as $taxonomy ) {
         if ( isset( $filters[ $taxonomy ] ) && ! empty( $filters[ $taxonomy ] ) ) {
             $tax_query[] = array(
@@ -324,14 +441,19 @@ function vroomqc_get_taxonomy_counts( $filters = array() ) {
         
         if ( ! is_wp_error( $terms ) && ! empty( $terms ) ) {
             foreach ( $terms as $term ) {
-                // Build query args excluding current taxonomy if it's in filters
+                // Build query args for counting this specific term
                 $query_filters = $filters;
-                if ( isset( $query_filters[ $taxonomy ] ) ) {
-                    unset( $query_filters[ $taxonomy ] );
-                }
                 
-                // Add this specific term to the query
-                $query_filters[ $taxonomy ] = array( $term->slug );
+                if ( in_array( $taxonomy, array( 'make', 'model' ) ) ) {
+                    // For make and model: remove entire taxonomy from filters to avoid self-filtering
+                    if ( isset( $query_filters[ $taxonomy ] ) ) {
+                        unset( $query_filters[ $taxonomy ] );
+                    }
+                    // Don't add any terms back - we want total count for this specific term
+                } else {
+                    // For other taxonomies: replace all selected terms with current term
+                    $query_filters[ $taxonomy ] = array( $term->slug );
+                }
                 
                 $args = array(
                     'post_type' => 'vehicle',
@@ -346,10 +468,19 @@ function vroomqc_get_taxonomy_counts( $filters = array() ) {
                     )
                 );
                 
-                // Apply taxonomy filters
+                // Apply taxonomy filters - simple logic for counting individual terms
                 $tax_query = array();
                 $taxonomies_list = array( 'make', 'model', 'body-style', 'transmission', 'drivetrain', 'fuel-type', 'cylinder', 'trim', 'exterior-color', 'interior-color' );
                 
+                // First, add the current term being counted
+                $tax_query[] = array(
+                    'taxonomy' => $taxonomy,
+                    'field' => 'slug',
+                    'terms' => array( $term->slug ),
+                    'operator' => 'IN'
+                );
+                
+                // Then add other taxonomy filters (but not the same taxonomy)
                 foreach ( $query_filters as $filter_key => $filter_values ) {
                     if ( in_array( $filter_key, $taxonomies_list ) && is_array( $filter_values ) && ! empty( $filter_values ) ) {
                         $tax_query[] = array(
@@ -419,6 +550,8 @@ function vroomqc_get_taxonomy_counts( $filters = array() ) {
                 
                 $query = new WP_Query( $args );
                 $counts[ $taxonomy ][ $term->slug ] = $query->found_posts;
+                
+                
                 wp_reset_postdata();
             }
         }
